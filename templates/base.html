@@ -1,0 +1,165 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Trakvo{% endblock %}</title>
+    <!-- We now use the tailwind output.css -->
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-brand-light text-brand-dark font-sans h-screen flex overflow-hidden">
+    
+    {% if user.is_authenticated %}
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-brand-ink text-brand-paper flex flex-col justify-between fixed inset-y-0 left-0 z-50 transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 md:flex shrink-0">
+        <div>
+            <!-- Logo -->
+            <div class="h-16 flex items-center px-6 border-b border-gray-800">
+                <span class="text-2xl font-bold font-serif tracking-tight text-brand-paper">Trakvo.</span>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="p-4 space-y-1">
+                <a href="{% if user.role == 'owner' %}{% url 'accounts:owner_dashboard' %}{% else %}{% url 'accounts:teacher_dashboard' %}{% endif %}" class="flex items-center space-x-3 {% if request.resolver_match.url_name == 'owner_dashboard' or request.resolver_match.url_name == 'teacher_dashboard' %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-400 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'students:student_list' %}" class="flex items-center space-x-3 {% if request.resolver_match.app_name == 'students' %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-400 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <span>Students</span>
+                </a>
+                {% if user.role == 'owner' %}
+                <a href="{% url 'institutes:batch_list' %}" class="flex items-center space-x-3 {% if request.resolver_match.app_name == 'institutes' and request.resolver_match.url_name != 'profile' %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-400 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <span>Batches</span>
+                </a>
+                {% endif %}
+                <a href="{% url 'fees:fee_list' %}" class="flex items-center space-x-3 {% if request.resolver_match.app_name == 'fees' %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-400 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span>Fees</span>
+                </a>
+                {% if user.role == 'owner' %}
+                <a href="{% url 'accounts:teacher_list' %}" class="flex items-center space-x-3 {% if request.resolver_match.url_name == 'teacher_list' or request.resolver_match.url_name == 'teacher_add' %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-400 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span>Teachers</span>
+                </a>
+                {% endif %}
+                <a href="{% url 'assessments:test_list' %}" class="flex items-center space-x-3 {% if request.resolver_match.app_name == 'assessments' %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-400 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span>Assessments</span>
+                </a>
+                <a href="{% url 'attendance:mark_attendance' %}" class="flex items-center space-x-3 {% if request.resolver_match.app_name == 'attendance' %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-400 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+                    <span>Attendance</span>
+                </a>
+                {% if user.role == 'owner' %}
+                <a href="{% url 'institutes:profile' %}" class="flex items-center space-x-3 {% if request.resolver_match.url_name == 'profile' %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-400 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <span>Settings</span>
+                </a>
+                {% endif %}
+            </nav>
+        </div>
+    </aside>
+    {% endif %}
+
+    <!-- Main Content Wrapper -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        {% if user.is_authenticated %}
+        <!-- Topbar -->
+        <header class="h-16 bg-brand-paper border-b border-brand-hairline flex items-center justify-between px-6 shrink-0 z-30">
+            <!-- Left: Institute Info -->
+            <div class="flex items-center">
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-500 hover:text-gray-900 focus:outline-none p-2 mr-3 -ml-2 rounded-lg hover:bg-gray-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                {% if user.institute %}
+                    {% if user.role == 'owner' %}
+                    <a href="{% url 'institutes:profile' %}" class="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                        <h1 class="text-xl font-semibold font-serif text-gray-900">{{ user.institute.name }}</h1>
+                    </a>
+                    {% else %}
+                    <div class="flex items-center space-x-3">
+                        <h1 class="text-xl font-semibold font-serif text-gray-900">{{ user.institute.name }}</h1>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <h1 class="text-xl font-semibold font-serif text-gray-900">Institute Setup Pending</h1>
+                {% endif %}
+            </div>
+
+            <!-- Actions (Right) -->
+            <div class="flex items-center space-x-4 relative">
+                <button onclick="toggleAccountMenu()" class="flex items-center space-x-2 focus:outline-none hover:opacity-80 transition-opacity">
+                    <span class="hidden md:inline-block text-sm font-medium text-gray-700">{{ user.get_full_name|default:user.phone_number }}</span>
+                    {% if user.institute %}
+                        {% if user.institute.logo %}
+                            <img src="{{ user.institute.logo.url }}" alt="{{ user.institute.name }} Logo" class="h-8 w-8 object-contain rounded">
+                        {% else %}
+                            <div class="h-8 w-8 rounded flex items-center justify-center text-gray-500 font-bold border border-gray-200 bg-white text-sm">
+                                {{ user.institute.name|slice:":1" }}
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="h-8 w-8 rounded-full border border-gray-200 bg-white flex items-center justify-center text-gray-500 font-bold text-sm">
+                            {{ user.role|slice:":1"|upper }}
+                        </div>
+                    {% endif %}
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div id="account-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-card border border-gray-100 py-1 z-50">
+                    <div class="px-4 py-2 border-b border-gray-100 md:hidden">
+                        <p class="text-sm font-medium text-gray-900 truncate">{{ user.get_full_name|default:user.phone_number }}</p>
+                        <p class="text-xs text-gray-500 capitalize">{{ user.role }}</p>
+                    </div>
+                    <a href="{% url 'accounts:change_password' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">Change Password</a>
+                    <form method="post" action="{% url 'accounts:logout' %}" class="w-full">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-brand-rust hover:bg-red-50 transition-colors">Log out</button>
+                    </form>
+                </div>
+            </div>
+        </header>
+        {% endif %}
+
+        <!-- Scrollable Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            {% block content %}
+            {% endblock content %}
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            
+            // Toggle sidebar visibility
+            sidebar.classList.toggle('-translate-x-full');
+            // Toggle backdrop visibility
+            backdrop.classList.toggle('hidden');
+        }
+        
+        function toggleAccountMenu() {
+            const menu = document.getElementById('account-menu');
+            menu.classList.toggle('hidden');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('account-menu');
+            const button = menu.previousElementSibling;
+            if (menu && !menu.classList.contains('hidden') && !menu.contains(event.target) && !button.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

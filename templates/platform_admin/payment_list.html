@@ -1,0 +1,78 @@
+{% extends 'platform_admin/base_admin.html' %}
+{% block title %}Payments - {{ institute.name }} | Platform Admin{% endblock %}
+
+{% block content %}
+<div class="p-8 max-w-7xl mx-auto space-y-8">
+    <div class="flex justify-between items-end">
+        <div class="flex items-center space-x-4">
+            <a href="{% url 'platform_admin:institute_detail' institute.pk %}" class="text-gray-400 hover:text-gray-900 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            </a>
+            <div>
+                <h2 class="text-3xl font-semibold font-serif text-brand-ink mb-1 flex items-center space-x-3">
+                    <span>Payments: {{ institute.name }}</span>
+                </h2>
+                <p class="text-gray-500 font-sans">Record and view manual platform payments.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Record Payment Form -->
+        <div class="bg-white p-6 rounded-xl shadow-card border border-brand-hairline lg:col-span-1 h-fit">
+            <h3 class="text-lg font-semibold font-serif text-brand-ink mb-4">Record New Payment</h3>
+            <form method="post" action="{% url 'platform_admin:payment_create' institute.pk %}" class="space-y-4">
+                {% csrf_token %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Amount (₹)</label>
+                    {{ form.amount }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                    {{ form.payment_date }}
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    {{ form.notes }}
+                </div>
+                <button type="submit" class="w-full bg-brand-ink text-white px-4 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-colors">
+                    Save Payment
+                </button>
+            </form>
+        </div>
+
+        <!-- Payment History Table -->
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline overflow-hidden lg:col-span-2">
+            <div class="p-6 border-b border-gray-100 bg-gray-50">
+                <h3 class="text-lg font-semibold font-serif text-brand-ink">Payment History</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500">
+                            <th class="p-4 font-medium">Date</th>
+                            <th class="p-4 font-medium">Amount</th>
+                            <th class="p-4 font-medium">Notes</th>
+                            <th class="p-4 font-medium">Recorded By</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for payment in payments %}
+                        <tr class="hover:bg-gray-50/50 transition-colors">
+                            <td class="p-4 text-gray-900">{{ payment.payment_date|date:"M j, Y" }}</td>
+                            <td class="p-4 font-medium text-gray-900">₹{{ payment.amount }}</td>
+                            <td class="p-4 text-gray-600">{{ payment.notes|default:"-" }}</td>
+                            <td class="p-4 text-gray-500 text-sm">{{ payment.recorded_by.phone_number }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="p-8 text-center text-gray-500">No payments recorded yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

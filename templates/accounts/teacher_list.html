@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Teachers | Trakvo{% endblock %}
+{% block content %}
+<div class="p-8">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl font-semibold font-serif text-brand-ink">Teachers</h2>
+        <a href="{% url 'accounts:teacher_add' %}" class="bg-brand-brass hover:brightness-95 text-brand-ink font-medium py-2 px-4 rounded-lg transition-all inline-flex items-center shadow-sm">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Add Teacher
+        </a>
+    </div>
+
+    <!-- List -->
+    <div class="bg-white rounded-lg shadow-card border border-brand-hairline overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-brand-paper text-gray-500 text-sm font-medium border-b border-brand-hairline">
+                    <th class="p-4">Name</th>
+                    <th class="p-4">Phone Number</th>
+                    <th class="p-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for teacher in teachers %}
+                <tr class="hover:bg-[#F0EBE1] transition-colors">
+                    <td class="p-4 font-medium text-brand-ink">{{ teacher.get_full_name }}</td>
+                    <td class="p-4 text-gray-600 font-sans">{{ teacher.phone_number }}</td>
+                    <td class="p-4 text-right space-x-3">
+                        <a href="{% url 'accounts:teacher_deactivate' teacher.pk %}" class="inline-block border border-brand-rust text-brand-rust hover:bg-red-50 text-xs font-semibold px-2 py-1 rounded-md transition-colors ml-2">Deactivate</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="p-8 text-center text-gray-500">
+                        No teachers found. Click "Add Teacher" to get started.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

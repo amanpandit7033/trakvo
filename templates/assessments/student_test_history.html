@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}{{ student.full_name }} Test History | Trakvo{% endblock %}
+{% block content %}
+<div class="p-8">
+    <div class="flex items-center space-x-4 mb-6 border-b border-gray-100 pb-4">
+        <a href="{% url 'students:student_detail' student.id %}" class="text-gray-400 hover:text-gray-600">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        </a>
+        <div>
+            <h2 class="text-2xl font-semibold text-gray-900">{{ student.full_name }}'s Test History</h2>
+            <p class="text-gray-500 text-sm">Batch: {{ student.batch.name }}</p>
+        </div>
+    </div>
+
+    <!-- Ranked List -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden max-w-4xl">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-50 text-gray-500 text-sm font-medium border-b border-gray-200">
+                    <th class="p-4 w-24 text-center">Rank</th>
+                    <th class="p-4">Test Name</th>
+                    <th class="p-4">Date</th>
+                    <th class="p-4 text-right">Marks Obtained</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for item in history %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="p-4 text-center font-bold {% if item.rank == 1 %}text-yellow-600{% elif item.rank == 2 %}text-gray-400{% elif item.rank == 3 %}text-amber-700{% else %}text-gray-500{% endif %}">
+                        {% if item.rank %}#{{ item.rank }}{% else %}-{% endif %}
+                    </td>
+                    <td class="p-4">
+                        <a href="{% url 'assessments:test_results' item.test.id %}" class="font-medium text-brand-blue hover:text-blue-800">
+                            {{ item.test.name }}
+                        </a>
+                    </td>
+                    <td class="p-4 text-gray-600">
+                        {{ item.test.test_date|date:"M j, Y" }}
+                    </td>
+                    <td class="p-4 text-right font-semibold text-gray-900">
+                        {{ item.marks }} / {{ item.test.max_marks }}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="p-8 text-center text-gray-500">
+                        No test history available.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

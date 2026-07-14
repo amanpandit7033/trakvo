@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Fees | Trakvo{% endblock %}
+{% load whatsapp_tags %}
+{% block content %}
+<div class="p-8">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl font-semibold text-gray-900">Fees Dashboard</h2>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6 flex flex-col md:flex-row gap-4">
+        <form method="get" class="flex-1 flex gap-4 w-full">
+            <div class="w-64">
+                <select name="status" class="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-blue outline-none transition-all bg-white">
+                    <option value="">All Statuses</option>
+                    <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="partial" {% if request.GET.status == 'partial' %}selected{% endif %}>Partial</option>
+                    <option value="paid" {% if request.GET.status == 'paid' %}selected{% endif %}>Paid</option>
+                </select>
+            </div>
+            <button type="submit" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-6 rounded-lg transition-colors">
+                Filter
+            </button>
+            {% if request.GET.status %}
+                <a href="{% url 'fees:fee_list' %}" class="text-gray-500 hover:text-gray-700 py-2 px-4 font-medium transition-colors">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- List -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-50 text-gray-500 text-sm font-medium border-b border-gray-200">
+                    <th class="p-4">Student</th>
+                    <th class="p-4">Batch</th>
+                    <th class="p-4">Total Due</th>
+                    <th class="p-4">Paid</th>
+                    <th class="p-4">Balance</th>
+                    <th class="p-4">Status</th>
+                    <th class="p-4">Due Date</th>
+                    <th class="p-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for fee in fee_structures %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="p-4">
+                        <a href="{% url 'students:student_detail' fee.student.pk %}" class="font-medium text-gray-900 hover:text-brand-blue">{{ fee.student.full_name }}</a>
+                    </td>
+                    <td class="p-4 text-gray-600">{{ fee.student.batch.name|default:"Unassigned" }}</td>
+                    <td class="p-4 text-gray-900 font-semibold">₹{{ fee.total_amount }}</td>
+                    <td class="p-4 text-gray-600">₹{{ fee.total_paid }}</td>
+                    <td class="p-4 font-semibold {% if fee.balance_due > 0 %}text-[#B54A3C]{% else %}text-gray-900{% endif %}">₹{{ fee.balance_due }}</td>
+                    <td class="p-4">
+                        {% if fee.status == 'paid' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#1F6F63] bg-opacity-10 text-[#1F6F63]">Paid</span>
+                        {% elif fee.status == 'partial' %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Partial</span>
+                        {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#B54A3C] bg-opacity-10 text-[#B54A3C]">Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4 text-gray-600">{{ fee.due_date|date:"M j, Y" }}</td>
+                    <td class="p-4 text-right space-x-3 flex items-center justify-end">
+                        {% if request.user.role == 'owner' and fee.balance_due > 0 %}
+                        <a href="{% url 'fees:payment_add' fee.id %}" class="text-brand-blue hover:text-blue-800 text-sm font-medium">Record Payment</a>
+                        {% endif %}
+                        {% if fee.balance_due > 0 %}
+                        {% whatsapp_fee_button fee %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="p-8 text-center text-gray-500">
+                        No fee structures found matching your criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

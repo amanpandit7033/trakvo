@@ -1,0 +1,44 @@
+<div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 h-full flex flex-col">
+    <div class="flex items-center justify-between mb-4 border-b border-brand-hairline pb-2">
+        <div class="flex items-center space-x-3">
+            <div class="p-1.5 bg-teal-50 rounded-md">
+                <svg class="w-5 h-5 text-brand-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <h3 class="text-lg font-serif font-medium text-brand-ink">Fee Status</h3>
+        </div>
+        {% if request.user.role == 'owner' %}
+        <a href="{% url 'fees:fee_add' student.id %}" class="text-brand-teal hover:underline text-sm font-medium">+ Add Fee</a>
+        {% endif %}
+    </div>
+    
+    <div class="flex-1 overflow-y-auto pr-2 space-y-4">
+        {% for fee in fee_structures %}
+        <div class="border border-gray-100 rounded-lg p-3 {% if fee.balance_due > 0 %}bg-red-50{% else %}bg-green-50{% endif %}">
+            <div class="flex justify-between items-start mb-2">
+                <h4 class="font-medium text-gray-900 text-sm">{{ fee.installment_label|default:"Fee Installment" }}</h4>
+                <span class="text-xs font-semibold px-2 py-1 rounded-full {% if fee.status == 'paid' %}bg-[#1F6F63] text-white{% elif fee.status == 'partial' %}bg-yellow-400 text-yellow-900{% else %}bg-[#B54A3C] text-white{% endif %}">{{ fee.status|title }}</span>
+            </div>
+            <div class="flex justify-between text-sm font-mono">
+                <span class="text-gray-600">Total: ₹{{ fee.total_amount }}</span>
+                <span class="font-bold {% if fee.balance_due > 0 %}text-[#B54A3C]{% else %}text-[#1F6F63]{% endif %}">Due: ₹{{ fee.balance_due }}</span>
+            </div>
+            {% if request.user.role == 'owner' and fee.balance_due > 0 %}
+            <div class="mt-3 text-right border-t border-brand-hairline pt-2">
+                <a href="{% url 'fees:payment_add' fee.id %}" class="text-brand-ink hover:underline text-xs font-bold uppercase tracking-wider">Record Payment</a>
+            </div>
+            {% endif %}
+            {% if fee.payments.all %}
+            <div class="mt-2 text-right border-t border-brand-hairline pt-2">
+                {% for payment in fee.payments.all %}
+                    <a href="{% url 'fees:fee_receipt' payment.id %}" class="text-gray-500 hover:text-brand-ink hover:underline text-xs block mb-1">Receipt for ₹{{ payment.amount_paid }} ({{ payment.payment_date|date:"M j" }}) ⬇️</a>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="text-center text-gray-500 text-sm mt-8">
+            <p>No fee structures assigned yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>

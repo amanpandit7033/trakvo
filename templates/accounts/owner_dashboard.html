@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard | Trakvo{% endblock %}
+{% block content %}
+<div class="p-8">
+    <div class="mb-6">
+        <h2 class="text-2xl font-semibold font-serif text-gray-900">Welcome, {{ request.user.institute.name|default:"Owner" }}</h2>
+        <p class="text-gray-500 text-sm">Here's what needs your attention today.</p>
+    </div>
+
+    {% if request.user.institute.trial_ends_on %}
+    <!-- Professional Trial Banner -->
+    <div class="mb-8 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/60 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+        <div class="flex items-center space-x-4">
+            <div class="bg-amber-100/80 p-2.5 rounded-lg shrink-0">
+                <svg class="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            </div>
+            <div>
+                <h4 class="text-base font-bold text-amber-900 mb-0.5">Trial Period Active</h4>
+                <p class="text-sm text-amber-700">Your institute's trial expires on <span class="font-semibold">{{ request.user.institute.trial_ends_on|date:"F j, Y" }}</span>.</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Stats Row -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6">
+            <p class="text-sm font-medium text-gray-500 mb-1">Total Students</p>
+            <p class="text-3xl font-mono text-gray-900">{{ active_students_count }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6">
+            <p class="text-sm font-medium text-gray-500 mb-1">Total Batches</p>
+            <p class="text-3xl font-mono text-gray-900">{{ total_batches_count }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6">
+            <p class="text-sm font-medium text-gray-500 mb-1">This Month's Collection</p>
+            <p class="text-3xl font-mono text-brand-teal">₹{{ this_month_collection }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6">
+            <p class="text-sm font-medium text-gray-500 mb-1">Attendance Marked Today</p>
+            <div class="flex items-end gap-2">
+                <p class="text-3xl font-mono {% if attendance_percent >= 80 %}text-brand-teal{% else %}text-gray-900{% endif %}">
+                    {{ attendance_percent }}%
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Needs Attention: Attendance -->
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h3 class="text-lg font-semibold font-serif text-gray-900">Missing Attendance Today</h3>
+                <span class="bg-brand-rust text-white text-xs font-bold px-2 py-1 rounded-full">{{ batches_pending_attendance.count }} Batches</span>
+            </div>
+            <div class="p-0 flex-1">
+                <ul class="divide-y divide-gray-100">
+                    {% for batch in batches_pending_attendance %}
+                    <li class="p-4 hover:bg-gray-50 transition-colors flex justify-between items-center">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ batch.name }}</p>
+                        </div>
+                        <a href="{% url 'attendance:mark_attendance_specific' batch.id today_str %}" class="text-sm font-medium text-brand-ink bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg transition-colors">
+                            Mark Now
+                        </a>
+                    </li>
+                    {% empty %}
+                    <li class="p-8 text-center text-gray-500">
+                        <svg class="w-12 h-12 text-[#1F6F63] mx-auto mb-3 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        All batches have been marked for today!
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Needs Attention: Overdue Fees -->
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <div>
+                    <h3 class="text-lg font-semibold font-serif text-gray-900">Overdue Fees</h3>
+                    <p class="text-sm text-gray-500">{{ students_overdue_count }} students overdue (Total: ₹{{ total_balance }})</p>
+                </div>
+            </div>
+            <div class="p-0 flex-1">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-white text-xs text-gray-400 border-b border-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 font-medium">Student</th>
+                            <th class="px-6 py-3 font-medium text-right">Balance</th>
+                            <th class="px-6 py-3 font-medium text-right">Days Overdue</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for fee in top_5_overdue %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4">
+                                <a href="{% url 'students:student_detail' fee.student.id %}" class="font-medium text-gray-900 hover:underline">{{ fee.student.full_name }}</a>
+                                <p class="text-xs text-gray-500">{{ fee.student.batch.name }}</p>
+                            </td>
+                            <td class="px-6 py-4 text-right font-semibold text-brand-rust font-mono">
+                                ₹{{ fee.balance_due }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <span class="text-xs font-bold text-brand-rust bg-red-50 px-2 py-1 rounded">{{ fee.days_overdue }} days</span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="p-8 text-center text-gray-500">
+                                <svg class="w-12 h-12 text-[#1F6F63] mx-auto mb-3 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                No overdue fees!
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% if students_overdue_count > 5 %}
+            <div class="p-3 border-t border-gray-100 text-center bg-gray-50">
+                <a href="{% url 'fees:fee_list' %}" class="text-sm font-medium text-brand-ink hover:underline">View All {{ students_overdue_count }} Overdue Students</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent Tests -->
+    <div>
+        <h3 class="text-lg font-semibold font-serif text-gray-900 mb-4">Recent Tests</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {% for item in recent_tests %}
+            <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 flex flex-col justify-between h-full">
+                <div>
+                    <div class="flex justify-between items-center mb-2">
+                        <h4 class="font-semibold text-gray-900">{{ item.test.name }}</h4>
+                        {% if item.is_complete %}
+                        <span class="text-xs font-bold text-brand-teal bg-teal-50 px-2 py-1 rounded">Complete</span>
+                        {% else %}
+                        <span class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded">Pending</span>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm text-gray-600 mb-1">{{ item.test.batch.name }}</p>
+                    <p class="text-xs text-gray-400 mb-4">{{ item.test.test_date|date:"M j, Y" }}</p>
+                </div>
+                <div>
+                    {% if item.is_complete %}
+                    <a href="{% url 'assessments:test_results' item.test.id %}" class="block text-center w-full py-2 border border-brand-hairline rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">View Results</a>
+                    {% else %}
+                    <a href="{% url 'assessments:marks_entry' item.test.id %}" class="block text-center w-full py-2 bg-brand-ink rounded-lg text-sm font-medium text-white hover:opacity-90 transition-opacity shadow-sm">Enter Marks</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-3 bg-white rounded-xl shadow-card border border-brand-hairline p-8 text-center text-gray-500">
+                No tests created yet. <a href="{% url 'assessments:test_add' %}" class="text-brand-ink hover:underline">Create one</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

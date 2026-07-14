@@ -1,0 +1,127 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Platform Admin | Trakvo{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-brand-light text-brand-dark font-sans h-screen flex overflow-hidden">
+    
+    {% if user.is_authenticated and user.role == 'super_admin' %}
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-brand-ink text-brand-paper flex flex-col justify-between fixed inset-y-0 left-0 z-50 transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 md:flex shrink-0">
+        <div>
+            <!-- Logo -->
+            <div class="h-16 flex items-center px-6 border-b border-white/10">
+                <span class="text-2xl font-bold font-serif tracking-tight text-brand-paper">Trakvo Admin</span>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="p-4 space-y-1">
+                <a href="{% url 'platform_admin:dashboard' %}" class="flex items-center space-x-3 {% if request.resolver_match.url_name == 'dashboard' %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-300 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="{% url 'platform_admin:institute_list' %}" class="flex items-center space-x-3 {% if 'institute' in request.resolver_match.url_name %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-300 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    <span>Institutes</span>
+                </a>
+                <a href="{% url 'platform_admin:user_list' %}" class="flex items-center space-x-3 {% if 'user' in request.resolver_match.url_name %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-300 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <span>Users</span>
+                </a>
+                <a href="{% url 'platform_admin:activity_list' %}" class="flex items-center space-x-3 {% if 'activity' in request.resolver_match.url_name %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-300 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span>Activity Log</span>
+                </a>
+            </nav>
+        </div>
+    </aside>
+    {% endif %}
+
+    <!-- Main Content Wrapper -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        {% if user.is_authenticated %}
+        <!-- Topbar -->
+        <header class="h-16 bg-brand-ink text-white border-b border-brand-hairline flex items-center justify-between px-6 shrink-0 z-30 shadow">
+            <!-- Left: Platform Info -->
+            <div class="flex items-center">
+                <button onclick="toggleSidebar()" class="md:hidden text-white hover:text-gray-300 focus:outline-none p-2 mr-3 -ml-2 rounded-lg hover:bg-white/10">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <div class="flex items-center space-x-3">
+                    <h1 class="text-xl font-semibold font-serif text-brand-brass">Platform Administration</h1>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-4 relative">
+                <button onclick="toggleAccountMenu()" class="flex items-center space-x-2 focus:outline-none hover:opacity-80 transition-opacity">
+                    <span class="hidden md:inline-block text-sm font-medium text-gray-300">Super Admin</span>
+                    <div class="h-8 w-8 rounded-full border border-gray-600 bg-brand-ink flex items-center justify-center text-gray-300 font-bold text-sm">
+                        SA
+                    </div>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div id="account-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-card border border-gray-100 py-1 z-50 text-brand-dark">
+                    <div class="px-4 py-2 border-b border-gray-100 md:hidden">
+                        <p class="text-sm font-medium text-gray-900 truncate">Super Admin</p>
+                    </div>
+                    <a href="{% url 'accounts:change_password' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">Change Password</a>
+                    <form method="post" action="{% url 'accounts:logout' %}" class="w-full">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-brand-rust hover:bg-red-50 transition-colors">Log out</button>
+                    </form>
+                </div>
+            </div>
+        </header>
+        {% endif %}
+
+        <!-- Scrollable Main Content -->
+        <main class="flex-1 overflow-y-auto bg-gray-50">
+            {% if messages %}
+            <div class="p-4 mx-auto max-w-7xl">
+                {% for message in messages %}
+                <div class="mb-4 rounded-lg p-4 {% if message.tags == 'error' %}bg-brand-rust/10 text-brand-rust border border-brand-rust/20{% else %}bg-brand-teal/10 text-brand-teal border border-brand-teal/20{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% block content %}
+            {% endblock content %}
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            sidebar.classList.toggle('-translate-x-full');
+            backdrop.classList.toggle('hidden');
+        }
+        
+        function toggleAccountMenu() {
+            const menu = document.getElementById('account-menu');
+            menu.classList.toggle('hidden');
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('account-menu');
+            const button = menu.previousElementSibling;
+            if (menu && !menu.classList.contains('hidden') && !menu.contains(event.target) && !button.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

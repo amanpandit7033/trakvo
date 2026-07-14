@@ -1,0 +1,76 @@
+{% extends 'platform_admin/base_admin.html' %}
+{% block title %}Institutes | Trakvo Platform Admin{% endblock %}
+
+{% block content %}
+<div class="p-8 max-w-7xl mx-auto">
+    <div class="flex justify-between items-end mb-8">
+        <div>
+            <h2 class="text-3xl font-semibold font-serif text-brand-ink mb-2">Institutes</h2>
+            <p class="text-gray-500 font-sans">Manage all registered institutes on the platform.</p>
+        </div>
+        <a href="{% url 'platform_admin:institute_create' %}" class="px-6 py-2 bg-brand-brass text-brand-ink font-bold rounded-lg border border-brand-brass hover:bg-opacity-90 transition-colors shadow">
+            + Create Institute
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white p-4 rounded-xl shadow-card border border-brand-hairline mb-6 flex space-x-4">
+        <form method="get" class="flex flex-1 space-x-4">
+            <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search by name..." class="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-ink/20">
+            <select name="status" class="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-ink/20">
+                <option value="">All Statuses</option>
+                <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                <option value="suspended" {% if request.GET.status == 'suspended' %}selected{% endif %}>Suspended</option>
+            </select>
+            <button type="submit" class="bg-brand-ink text-white px-6 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-colors">
+                Filter
+            </button>
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl shadow-card border border-brand-hairline overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500">
+                        <th class="p-4 font-medium">Institute Name</th>
+                        <th class="p-4 font-medium">City</th>
+                        <th class="p-4 font-medium">Signup Date</th>
+                        <th class="p-4 font-medium">Students</th>
+                        <th class="p-4 font-medium">Status</th>
+                        <th class="p-4 font-medium text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for inst in institutes %}
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="p-4">
+                            <div class="font-medium text-gray-900">{{ inst.name }}</div>
+                            <div class="text-sm text-gray-500">{{ inst.phone_number }}</div>
+                        </td>
+                        <td class="p-4 text-gray-600">{{ inst.city }}</td>
+                        <td class="p-4 text-gray-600">{{ inst.created_at|date:"M j, Y" }}</td>
+                        <td class="p-4 text-gray-600">{{ inst.student_count }}</td>
+                        <td class="p-4">
+                            {% if inst.is_suspended %}
+                                <span class="px-2 py-1 bg-brand-rust/10 text-brand-rust text-xs font-bold rounded-full">Suspended</span>
+                            {% else %}
+                                <span class="px-2 py-1 bg-brand-teal/10 text-brand-teal text-xs font-bold rounded-full">Active</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-4 text-right">
+                            <a href="{% url 'platform_admin:institute_detail' inst.pk %}" class="text-brand-ink font-medium hover:underline text-sm">View &rarr;</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="p-8 text-center text-gray-500">No institutes found matching your criteria.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}{% if object %}Edit Batch{% else %}Add Batch{% endif %} | Trakvo{% endblock %}
+{% block content %}
+<div class="p-8">
+    <div class="max-w-xl bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <h2 class="text-2xl font-semibold font-serif text-brand-ink mb-6">{% if object %}Edit Batch{% else %}Add Batch{% endif %}</h2>
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            {% for field in form %}
+            <div>
+                <label for="{{ field.id_for_label }}" class="block text-sm font-medium font-sans text-brand-ink mb-1">
+                    {% if field.name == 'description' %}Description (optional){% else %}{{ field.label }}{% endif %}
+                </label>
+                {{ field }}
+                {% if field.errors %}
+                <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% if object %}
+                {% url 'institutes:batch_list' as cancel_url %}
+                {% include 'core/_form_actions.html' with submit_text='Save Changes' cancel_url=cancel_url %}
+            {% else %}
+                {% url 'institutes:batch_list' as cancel_url %}
+                {% include 'core/_form_actions.html' with submit_text='Add Batch' cancel_url=cancel_url %}
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}

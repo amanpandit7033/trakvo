@@ -1,0 +1,79 @@
+{% extends 'platform_admin/base_admin.html' %}
+{% block title %}Users | Trakvo Platform Admin{% endblock %}
+
+{% block content %}
+<div class="p-8 max-w-7xl mx-auto">
+    <div class="flex justify-between items-end mb-8">
+        <div>
+            <h2 class="text-3xl font-semibold font-serif text-brand-ink mb-2">Users</h2>
+            <p class="text-gray-500 font-sans">Manage all owners and teachers across the platform.</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white p-4 rounded-xl shadow-card border border-brand-hairline mb-6 flex space-x-4">
+        <form method="get" class="flex flex-1 space-x-4">
+            <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search by phone..." class="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-ink/20">
+            <select name="role" class="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-ink/20">
+                <option value="">All Roles</option>
+                <option value="owner" {% if request.GET.role == 'owner' %}selected{% endif %}>Owner</option>
+                <option value="teacher" {% if request.GET.role == 'teacher' %}selected{% endif %}>Teacher</option>
+            </select>
+            <button type="submit" class="bg-brand-ink text-white px-6 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-colors">
+                Filter
+            </button>
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl shadow-card border border-brand-hairline overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500">
+                        <th class="p-4 font-medium">Phone Number</th>
+                        <th class="p-4 font-medium">Role</th>
+                        <th class="p-4 font-medium">Institute</th>
+                        <th class="p-4 font-medium">Status</th>
+                        <th class="p-4 font-medium text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for u in users %}
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="p-4 font-medium text-gray-900">{{ u.phone_number }}</td>
+                        <td class="p-4">
+                            <span class="capitalize px-2 py-1 bg-gray-100 text-gray-600 text-xs font-bold rounded-full">{{ u.role }}</span>
+                        </td>
+                        <td class="p-4 text-gray-600">{{ u.institute.name|default:"-" }}</td>
+                        <td class="p-4">
+                            {% if u.is_active %}
+                                <span class="px-2 py-1 bg-brand-teal/10 text-brand-teal text-xs font-bold rounded-full">Active</span>
+                            {% else %}
+                                <span class="px-2 py-1 bg-gray-200 text-gray-500 text-xs font-bold rounded-full">Deactivated</span>
+                            {% endif %}
+                        </td>
+                        <td class="p-4 text-right space-x-3">
+                            <form method="post" action="{% url 'platform_admin:user_reset_password' u.pk %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="text-brand-ink font-medium hover:underline text-sm" onclick="return confirm('Generate a new random password for this user?');">Reset PW</button>
+                            </form>
+                            {% if u.is_active %}
+                            <form method="post" action="{% url 'platform_admin:user_deactivate' u.pk %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="text-brand-rust font-medium hover:underline text-sm" onclick="return confirm('Deactivate this user? They will not be able to log in.');">Deactivate</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="p-8 text-center text-gray-500">No users found matching your criteria.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

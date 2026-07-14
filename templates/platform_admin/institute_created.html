@@ -1,0 +1,56 @@
+{% extends 'platform_admin/base_admin.html' %}
+{% block title %}Institute Created | Platform Admin{% endblock %}
+
+{% block content %}
+<div class="p-8 max-w-3xl mx-auto">
+    <div class="bg-white rounded-xl shadow-card border border-brand-teal overflow-hidden">
+        <div class="p-8 text-center bg-brand-teal/5 border-b border-brand-teal/20">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-teal text-white mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <h2 class="text-3xl font-semibold font-serif text-brand-teal mb-2">Institute Successfully Created</h2>
+            <p class="text-gray-600">The new institute and its owner account are now ready.</p>
+        </div>
+        
+        <div class="p-8">
+            <h3 class="text-xl font-semibold font-serif text-brand-ink mb-6 pb-2 border-b border-gray-100">Login Credentials</h3>
+            
+            <div class="bg-brand-paper rounded-xl p-6 border border-brand-hairline mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Institute</p>
+                        <p class="text-lg font-medium text-brand-ink">{{ institute.name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Owner Name</p>
+                        <p class="text-lg font-medium text-brand-ink">{{ owner.get_full_name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Login Phone Number</p>
+                        <p class="text-2xl font-mono text-brand-ink">{{ owner.phone_number }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">Temporary Password</p>
+                        <div class="bg-white px-4 py-2 rounded-lg border border-gray-200 inline-block">
+                            <span class="text-2xl font-mono text-brand-rust tracking-wider font-bold">{{ password }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-blue-50 text-blue-800 p-4 rounded-lg mb-8 text-sm">
+                <strong>Important:</strong> Share these login details with the institute owner immediately. This is the only time the temporary password will be shown in plain text.
+            </div>
+            
+            <div class="flex space-x-4">
+                <a href="{% url 'platform_admin:institute_detail' institute.pk %}" class="flex-1 text-center px-6 py-3 bg-brand-ink text-white font-bold rounded-lg hover:bg-opacity-90 transition-colors shadow">
+                    Go to Institute Dashboard
+                </a>
+                <a href="{% url 'platform_admin:institute_create' %}" class="flex-1 text-center px-6 py-3 bg-white text-brand-ink font-bold rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors shadow-sm">
+                    Create Another
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

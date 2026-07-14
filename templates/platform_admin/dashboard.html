@@ -1,0 +1,86 @@
+{% extends 'platform_admin/base_admin.html' %}
+{% block title %}Dashboard | Trakvo Platform Admin{% endblock %}
+
+{% block content %}
+<div class="p-8 max-w-7xl mx-auto">
+    <div class="mb-8">
+        <h2 class="text-3xl font-semibold font-serif text-brand-ink">Platform Overview</h2>
+        <p class="text-gray-500">Welcome to the Trakvo super admin panel.</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 text-center">
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Total Institutes</p>
+            <p class="text-4xl font-mono text-brand-ink">{{ total_institutes }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 text-center">
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Active Institutes</p>
+            <p class="text-4xl font-mono text-brand-teal">{{ active_institutes }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 text-center">
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Suspended</p>
+            <p class="text-4xl font-mono text-brand-rust">{{ suspended_institutes }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 text-center">
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Total Students</p>
+            <p class="text-4xl font-mono text-brand-ink">{{ total_students }}</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <!-- Trials Ending Soon -->
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline overflow-hidden flex flex-col h-full">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-brand-brass/10">
+                <h3 class="text-lg font-semibold font-serif text-brand-ink">Trials Ending in Next 7 Days</h3>
+                <span class="bg-brand-brass text-white text-xs font-bold px-2 py-1 rounded-full">{{ trials_ending_soon.count }}</span>
+            </div>
+            <div class="p-0 flex-1">
+                <ul class="divide-y divide-gray-100">
+                    {% for inst in trials_ending_soon %}
+                    <li class="p-4 hover:bg-gray-50 transition-colors flex justify-between items-center">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ inst.name }}</p>
+                            <p class="text-sm text-brand-rust font-bold">Ends: {{ inst.trial_ends_on|date:"M j, Y" }}</p>
+                        </div>
+                        <a href="{% url 'platform_admin:institute_detail' inst.pk %}" class="text-sm font-medium text-brand-ink hover:underline">Manage &rarr;</a>
+                    </li>
+                    {% empty %}
+                    <li class="p-8 text-center text-gray-500">
+                        No trials ending in the next 7 days.
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline overflow-hidden flex flex-col h-full">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+                <h3 class="text-lg font-semibold font-serif text-brand-ink">Recent Activity</h3>
+            </div>
+            <div class="p-0 flex-1">
+                <ul class="divide-y divide-gray-100">
+                    {% for log in recent_activity %}
+                    <li class="p-4 hover:bg-gray-50 transition-colors text-sm">
+                        <p class="text-gray-900 font-medium">{{ log.action }}</p>
+                        <p class="text-gray-500 text-xs mt-1">
+                            By {{ log.user.phone_number }} 
+                            {% if log.institute %} | {{ log.institute.name }}{% endif %} 
+                            - {{ log.timestamp|timesince }} ago
+                        </p>
+                    </li>
+                    {% empty %}
+                    <li class="p-8 text-center text-gray-500">
+                        No recent activity.
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="p-4 border-t border-brand-hairline bg-gray-50 rounded-b-xl text-center mt-auto">
+                <a href="{% url 'platform_admin:activity_list' %}" class="text-brand-ink hover:underline text-sm font-medium">View Full Log &rarr;</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% block title %}Students | Trakvo{% endblock %}
+{% block content %}
+<div class="p-8">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl font-semibold font-serif text-brand-ink">Students</h2>
+        {% if request.user.role == 'owner' %}
+        <a href="{% url 'students:student_add' %}" class="bg-brand-brass hover:brightness-95 text-brand-ink font-medium py-2 px-4 rounded-lg transition-all inline-flex items-center shadow-sm">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Add Student
+        </a>
+        {% endif %}
+    </div>
+
+    <!-- Filters and Search -->
+    <div class="bg-white rounded-lg shadow-card border border-brand-hairline p-4 mb-6 flex flex-col md:flex-row gap-4">
+        <form method="get" class="flex-1 flex gap-4 w-full">
+            <div class="flex-1">
+                <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search by name or phone..." class="w-full px-4 py-2 border border-brand-hairline rounded-lg focus:ring-2 focus:ring-brand-brass focus:border-transparent outline-none transition-all">
+            </div>
+            <div class="w-64">
+                <select name="batch" class="w-full px-4 py-2 border border-brand-hairline rounded-lg focus:ring-2 focus:ring-brand-brass focus:border-transparent outline-none transition-all bg-white">
+                    <option value="">All Batches</option>
+                    {% for batch in batches %}
+                        <option value="{{ batch.id }}" {% if request.GET.batch == batch.id|stringformat:"s" %}selected{% endif %}>{{ batch.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-6 rounded-lg transition-colors">
+                Filter
+            </button>
+            {% if request.GET.search or request.GET.batch %}
+                <a href="{% url 'students:student_list' %}" class="text-gray-500 hover:text-gray-700 py-2 px-4 font-medium transition-colors">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- List -->
+    <div class="bg-white rounded-lg shadow-card border border-brand-hairline overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-brand-paper text-gray-500 text-sm font-medium border-b border-brand-hairline">
+                    <th class="p-4">Name</th>
+                    <th class="p-4">Batch</th>
+                    <th class="p-4">Parent Phone</th>
+                    <th class="p-4">Fee Status</th>
+                    <th class="p-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for student in students %}
+                <tr class="hover:bg-[#F0EBE1] transition-colors">
+                    <td class="p-4">
+                        <a href="{% url 'students:student_detail' student.pk %}" class="font-medium text-brand-ink hover:underline">{{ student.full_name }}</a>
+                    </td>
+                    <td class="p-4 text-brand-ink">{{ student.batch.name|default:"Unassigned" }}</td>
+                    <td class="p-4 text-gray-600 font-sans">{{ student.parent_phone_number }}</td>
+                    <td class="p-4 text-gray-500">
+                        {% if student.fee_status_label == 'Not set' %}
+                            <span class="text-xs font-bold text-gray-500 bg-gray-100 px-2 py-1 rounded">Not set</span>
+                        {% elif student.fee_status_label == 'Paid' %}
+                            <span class="text-xs font-bold text-brand-teal bg-teal-50 px-2 py-1 rounded">Paid</span>
+                        {% elif student.fee_status_label == 'Partial' %}
+                            <span class="text-xs font-bold text-brand-brass bg-yellow-50 px-2 py-1 rounded">Partial</span>
+                        {% else %}
+                            <span class="text-xs font-bold text-brand-rust bg-red-50 px-2 py-1 rounded">{{ student.fee_status_label }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4 text-right space-x-3">
+                        <a href="{% url 'students:student_detail' student.pk %}" class="text-brand-ink hover:underline text-sm font-medium">View</a>
+                        {% if request.user.role == 'owner' %}
+                        <a href="{% url 'students:student_edit' student.pk %}" class="text-gray-600 hover:text-brand-ink text-sm font-medium">Edit</a>
+                        <a href="{% url 'students:student_deactivate' student.pk %}" class="inline-block border border-brand-rust text-brand-rust hover:bg-red-50 text-xs font-semibold px-2 py-1 rounded-md transition-colors ml-2">Deactivate</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="p-8 text-center text-gray-500">
+                        No students found matching your criteria.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

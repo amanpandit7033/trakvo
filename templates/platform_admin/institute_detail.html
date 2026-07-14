@@ -1,0 +1,105 @@
+{% extends 'platform_admin/base_admin.html' %}
+{% block title %}{{ institute.name }} | Platform Admin{% endblock %}
+
+{% block content %}
+<div class="p-8 max-w-7xl mx-auto space-y-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <a href="{% url 'platform_admin:institute_list' %}" class="text-gray-400 hover:text-gray-900 transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            </a>
+            <div>
+                <h2 class="text-3xl font-semibold font-serif text-brand-ink mb-1 flex items-center space-x-3">
+                    <span>{{ institute.name }}</span>
+                    {% if institute.is_suspended %}
+                        <span class="px-2 py-1 bg-brand-rust/10 text-brand-rust text-xs font-bold rounded-full">Suspended</span>
+                    {% else %}
+                        <span class="px-2 py-1 bg-brand-teal/10 text-brand-teal text-xs font-bold rounded-full">Active</span>
+                    {% endif %}
+                </h2>
+                <p class="text-gray-500 font-sans">Created on {{ institute.created_at|date:"M j, Y" }} | {{ institute.city }}</p>
+            </div>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'platform_admin:payment_list' institute.pk %}" class="px-4 py-2 bg-brand-brass text-brand-ink font-bold rounded-lg border border-brand-brass hover:bg-opacity-90 transition-colors">
+                Manage Payments
+            </a>
+            <form method="post" action="{% url 'platform_admin:suspend_institute' institute.pk %}">
+                {% csrf_token %}
+                {% if institute.is_suspended %}
+                    <input type="hidden" name="action" value="reactivate">
+                    <button type="submit" class="px-4 py-2 bg-brand-teal text-white font-bold rounded-lg hover:bg-opacity-90 transition-colors">
+                        Reactivate Institute
+                    </button>
+                {% else %}
+                    <input type="hidden" name="action" value="suspend">
+                    <button type="submit" class="px-4 py-2 bg-brand-rust text-white font-bold rounded-lg hover:bg-opacity-90 transition-colors" onclick="return confirm('Are you sure you want to suspend this institute? ALL users will be locked out.');">
+                        Suspend Institute
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 text-center">
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Total Students</p>
+            <p class="text-3xl font-mono text-brand-ink">{{ student_count }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 text-center">
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Total Batches</p>
+            <p class="text-3xl font-mono text-brand-ink">{{ batch_count }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 text-center">
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Total Teachers</p>
+            <p class="text-3xl font-mono text-brand-ink">{{ teachers.count }}</p>
+        </div>
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 text-center">
+            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Trial Ends On</p>
+            <p class="text-xl font-mono text-brand-rust mt-2">
+                {{ institute.trial_ends_on|date:"M j, Y"|default:"Not set" }}
+            </p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Trial Management -->
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6">
+            <h3 class="text-lg font-semibold font-serif text-brand-ink mb-4">Extend Trial</h3>
+            <form method="post" action="{% url 'platform_admin:extend_trial' institute.pk %}" class="flex space-x-4 items-end">
+                {% csrf_token %}
+                <div class="flex-1">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">New Trial End Date</label>
+                    {{ extend_trial_form.trial_ends_on }}
+                </div>
+                <button type="submit" class="px-4 py-2 bg-brand-ink text-white rounded-lg font-medium hover:bg-opacity-90">Save</button>
+            </form>
+        </div>
+        
+        <!-- Owners -->
+        <div class="bg-white rounded-xl shadow-card border border-brand-hairline overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-gray-100 bg-gray-50">
+                <h3 class="text-lg font-semibold font-serif text-brand-ink">Institute Owners</h3>
+            </div>
+            <div class="p-0">
+                <ul class="divide-y divide-gray-100">
+                    {% for owner in owners %}
+                    <li class="p-4 hover:bg-gray-50 flex justify-between items-center">
+                        <div>
+                            <p class="font-medium text-gray-900">{{ owner.get_full_name|default:"Owner" }}</p>
+                            <p class="text-sm text-gray-500">{{ owner.phone_number }}</p>
+                        </div>
+                        <form method="post" action="{% url 'platform_admin:user_reset_password' owner.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="text-sm font-medium text-brand-ink hover:underline" onclick="return confirm('Generate a new random password for this owner?');">Reset Password</button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

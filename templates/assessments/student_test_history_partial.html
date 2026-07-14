@@ -1,0 +1,35 @@
+<div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 h-full flex flex-col">
+    <div class="flex items-center justify-between mb-4 border-b border-brand-hairline pb-2">
+        <div class="flex items-center space-x-3">
+            <div class="p-1.5 bg-brand-paper rounded-md">
+                <svg class="w-5 h-5 text-brand-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            </div>
+            <h3 class="text-lg font-serif font-medium text-brand-ink">Test Results</h3>
+        </div>
+    </div>
+    
+    <div class="flex-1 overflow-y-auto pr-2 space-y-4">
+        {% for item in history|slice:":3" %}
+        <div class="border border-brand-hairline rounded-lg p-3 bg-gray-50">
+            <div class="flex justify-between items-start mb-2">
+                <h4 class="font-medium text-gray-900 text-sm"><a href="{% url 'assessments:test_results' item.test.id %}" class="text-brand-ink hover:underline">{{ item.test.name }}</a></h4>
+                <span class="text-xs font-semibold font-mono px-2 py-1 rounded-full bg-white border border-brand-hairline text-gray-700">Rank #{{ item.rank }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+                <span class="text-gray-600">{{ item.test.test_date|date:"M j" }}</span>
+                <span class="font-bold font-mono text-gray-900">{{ item.marks }} / {{ item.test.max_marks }}</span>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center text-gray-500 text-sm mt-8">
+            <p>No tests taken yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+    
+    {% if history %}
+    <div class="mt-4 pt-4 border-t border-brand-hairline text-center">
+        <a href="{% url 'assessments:student_history' student.id %}" class="text-brand-ink hover:underline text-sm font-medium">View All Results</a>
+    </div>
+    {% endif %}
+</div>

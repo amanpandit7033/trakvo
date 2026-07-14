@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Tests | Trakvo{% endblock %}
+{% block content %}
+<div class="p-8">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl font-semibold font-serif text-brand-ink">Assessments Dashboard</h2>
+        <a href="{% url 'assessments:test_add' %}" class="bg-brand-brass hover:brightness-95 text-brand-ink font-medium py-2 px-4 rounded-lg transition-all shadow-sm inline-flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            New Test
+        </a>
+    </div>
+
+    <!-- List -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-gray-50 text-gray-500 text-sm font-medium border-b border-gray-200">
+                    <th class="p-4">Test Name</th>
+                    <th class="p-4">Batch</th>
+                    <th class="p-4">Date</th>
+                    <th class="p-4">Max Marks</th>
+                    <th class="p-4 text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for test in tests %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="p-4 font-medium text-gray-900">{{ test.name }}</td>
+                    <td class="p-4 text-gray-600">{{ test.batch.name }}</td>
+                    <td class="p-4 text-gray-600">{{ test.test_date|date:"M j, Y" }}</td>
+                    <td class="p-4 text-gray-600">{{ test.max_marks }}</td>
+                    <td class="p-4 text-right space-x-3">
+                        <a href="{% url 'assessments:marks_entry' test.id %}" class="text-brand-blue hover:text-blue-800 text-sm font-medium">Enter Marks</a>
+                        <a href="{% url 'assessments:test_results' test.id %}" class="text-gray-600 hover:text-gray-900 text-sm font-medium">View Results</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="p-8 text-center text-gray-500">
+                        No tests created yet.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

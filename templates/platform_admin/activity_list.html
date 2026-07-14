@@ -1,0 +1,74 @@
+{% extends 'platform_admin/base_admin.html' %}
+{% block title %}Activity Log | Trakvo Platform Admin{% endblock %}
+
+{% block content %}
+<div class="p-8 max-w-7xl mx-auto">
+    <div class="flex justify-between items-end mb-8">
+        <div>
+            <h2 class="text-3xl font-semibold font-serif text-brand-ink mb-2">Activity Log</h2>
+            <p class="text-gray-500 font-sans">Audit trail for platform administration actions.</p>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white p-4 rounded-xl shadow-card border border-brand-hairline mb-6 flex space-x-4">
+        <form method="get" class="flex flex-1 space-x-4">
+            <input type="text" name="institute" value="{{ request.GET.institute }}" placeholder="Filter by Institute ID..." class="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-ink/20">
+            <button type="submit" class="bg-brand-ink text-white px-6 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-colors">
+                Filter
+            </button>
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="bg-white rounded-xl shadow-card border border-brand-hairline overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500">
+                        <th class="p-4 font-medium w-48">Timestamp</th>
+                        <th class="p-4 font-medium">User</th>
+                        <th class="p-4 font-medium">Action</th>
+                        <th class="p-4 font-medium">Target Institute</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for log in logs %}
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="p-4 text-gray-500 text-sm whitespace-nowrap">{{ log.timestamp|date:"M j, Y H:i" }}</td>
+                        <td class="p-4 text-gray-900 font-medium">{{ log.user.phone_number }}</td>
+                        <td class="p-4 text-gray-800">{{ log.action }}</td>
+                        <td class="p-4 text-gray-600">
+                            {% if log.institute %}
+                                <a href="{% url 'platform_admin:institute_detail' log.institute.pk %}" class="hover:underline text-brand-ink">{{ log.institute.name }}</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="p-8 text-center text-gray-500">No activity logs found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="p-4 border-t border-gray-100 flex justify-between items-center bg-gray-50">
+            <span class="text-sm text-gray-500">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            <div class="flex space-x-2">
+                {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.institute %}&institute={{ request.GET.institute }}{% endif %}" class="px-3 py-1 border border-gray-200 rounded text-gray-600 hover:bg-gray-100">Prev</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.institute %}&institute={{ request.GET.institute }}{% endif %}" class="px-3 py-1 border border-gray-200 rounded text-gray-600 hover:bg-gray-100">Next</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

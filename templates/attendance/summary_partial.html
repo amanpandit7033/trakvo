@@ -1,0 +1,29 @@
+<div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 h-full flex flex-col">
+    <div class="flex items-center space-x-3 mb-6">
+        <div class="p-1.5 bg-brand-paper rounded-md">
+            <svg class="w-5 h-5 text-brand-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path></svg>
+        </div>
+        <h3 class="text-lg font-serif font-medium text-brand-ink">Attendance Summary</h3>
+    </div>
+    
+    <div class="flex-1 flex flex-col items-center justify-center mb-6">
+        <div class="relative w-32 h-32 flex items-center justify-center rounded-full border-8 {% if attendance_percentage >= 75 %}border-[#1F6F63] text-[#1F6F63]{% elif attendance_percentage >= 50 %}border-yellow-400 text-yellow-600{% else %}border-[#B54A3C] text-[#B54A3C]{% endif %}">
+            <span class="text-3xl font-mono font-bold">{{ attendance_percentage }}%</span>
+        </div>
+        <p class="text-sm text-gray-500 mt-3">Present for <span class="font-mono">{{ total_days }}</span> marked days</p>
+    </div>
+
+    <div>
+        <h4 class="text-sm font-serif font-semibold text-brand-ink mb-3 border-b border-brand-hairline pb-2">Recent Absences</h4>
+        <ul class="space-y-2">
+            {% for absence in recent_absences %}
+            <li class="flex items-center text-sm text-gray-600">
+                <span class="w-2 h-2 rounded-full bg-[#B54A3C] mr-2"></span>
+                {{ absence.date|date:"F j, Y" }}
+            </li>
+            {% empty %}
+            <li class="text-sm text-gray-500 italic">No recent absences recorded.</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
