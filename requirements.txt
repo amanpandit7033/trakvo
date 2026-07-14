@@ -3,3 +3,6 @@ python-decouple
 Pillow
 xhtml2pdf
 whitenoise
+gunicorn
+psycopg2-binary
+dj-database-url
