@@ -2,7 +2,7 @@
 {% block title %}Results: {{ test.name }} | Trakvo{% endblock %}
 {% load whatsapp_tags %}
 {% block content %}
-<div class="p-8">
+<div class="p-4 md:p-8">
     <div class="flex items-center space-x-4 mb-6 border-b border-gray-100 pb-4">
         <a href="{% url 'assessments:test_list' %}" class="text-gray-400 hover:text-gray-600">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -17,7 +17,7 @@
     </div>
 
     <!-- Ranked List -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden max-w-3xl">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto w-full max-w-3xl">
         <table class="w-full text-left border-collapse">
             <thead>
                 <tr class="bg-gray-50 text-gray-500 text-sm font-medium border-b border-gray-200">

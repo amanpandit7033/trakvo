@@ -2,14 +2,14 @@
 {% block title %}Payments - {{ institute.name }} | Platform Admin{% endblock %}
 
 {% block content %}
-<div class="p-8 max-w-7xl mx-auto space-y-8">
-    <div class="flex justify-between items-end">
+<div class="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div class="flex items-center space-x-4">
             <a href="{% url 'platform_admin:institute_detail' institute.pk %}" class="text-gray-400 hover:text-gray-900 transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
             </a>
             <div>
-                <h2 class="text-3xl font-semibold font-serif text-brand-ink mb-1 flex items-center space-x-3">
+                <h2 class="text-2xl md:text-3xl font-semibold font-serif text-brand-ink mb-1 flex items-center space-x-3">
                     <span>Payments: {{ institute.name }}</span>
                 </h2>
                 <p class="text-gray-500 font-sans">Record and view manual platform payments.</p>

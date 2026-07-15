@@ -2,7 +2,7 @@
 {% block title %}Activity Log | Trakvo Platform Admin{% endblock %}
 
 {% block content %}
-<div class="p-8 max-w-7xl mx-auto">
+<div class="p-4 md:p-8 max-w-7xl mx-auto">
     <div class="flex justify-between items-end mb-8">
         <div>
             <h2 class="text-3xl font-semibold font-serif text-brand-ink mb-2">Activity Log</h2>
@@ -11,8 +11,8 @@
     </div>
 
     <!-- Filters -->
-    <div class="bg-white p-4 rounded-xl shadow-card border border-brand-hairline mb-6 flex space-x-4">
-        <form method="get" class="flex flex-1 space-x-4">
+    <div class="bg-white p-4 rounded-xl shadow-card border border-brand-hairline mb-6">
+        <form method="get" class="flex flex-col sm:flex-row flex-1 gap-4">
             <input type="text" name="institute" value="{{ request.GET.institute }}" placeholder="Filter by Institute ID..." class="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-ink/20">
             <button type="submit" class="bg-brand-ink text-white px-6 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-colors">
                 Filter

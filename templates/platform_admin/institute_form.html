@@ -2,14 +2,14 @@
 {% block title %}Create Institute | Platform Admin{% endblock %}
 
 {% block content %}
-<div class="p-8 max-w-4xl mx-auto space-y-8">
+<div class="p-4 md:p-8 max-w-4xl mx-auto space-y-8">
     <!-- Header -->
     <div class="flex items-center space-x-4">
         <a href="{% url 'platform_admin:institute_list' %}" class="text-gray-400 hover:text-gray-900 transition-colors">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         </a>
         <div>
-            <h2 class="text-3xl font-semibold font-serif text-brand-ink mb-1">Create New Institute</h2>
+            <h2 class="text-2xl md:text-3xl font-semibold font-serif text-brand-ink mb-1">Create New Institute</h2>
             <p class="text-gray-500 font-sans">Set up a new institute and its initial owner account.</p>
         </div>
     </div>
@@ -35,7 +35,7 @@
             </div>
             {% endif %}
 
-            <div class="p-8 space-y-8">
+            <div class="p-4 md:p-8 space-y-8">
                 <!-- Institute Section -->
                 <div>
                     <h3 class="text-lg font-semibold font-serif text-brand-ink mb-4 pb-2 border-b border-brand-hairline">Institute Details</h3>
