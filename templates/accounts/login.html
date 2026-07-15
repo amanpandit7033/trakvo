@@ -2,36 +2,468 @@
 {% load static %}
 {% block title %}Login | Trakvo{% endblock %}
 {% block content %}
-<div class="h-full flex items-center justify-center p-4 bg-brand-paper min-h-screen">
-    <div class="max-w-md w-full bg-white rounded-lg shadow-card border border-brand-hairline p-8">
-        <div class="text-center mb-8">
-            <img src="{% static 'img/trakvo-logo.png' %}" alt="Trakvo Logo" class="h-12 w-auto mx-auto">
-            <p class="text-gray-500 mt-2 text-sm font-sans">Welcome back! Please enter your details.</p>
+<style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; height: 100%; }
+
+    /* ============================================================
+       PAGE SHELL
+    ============================================================ */
+    .lp {
+        display: flex;
+        min-height: 100vh;
+        font-family: 'Inter', ui-sans-serif, sans-serif;
+    }
+
+    /* ============================================================
+       LEFT PANEL — dark navy, animated canvas
+    ============================================================ */
+    .lp__left {
+        position: relative;
+        flex: 0 0 52%;
+        background: #111827;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        padding: 60px 48px;
+    }
+
+    /* canvas fills full panel */
+    #lp-canvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* thin gold rule at very top */
+    .lp__left::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent 0%, #B58E45 50%, transparent 100%);
+    }
+
+    /* brand block */
+    .lp__brand {
+        position: relative;
+        z-index: 2;
+        text-align: center;
+        margin-bottom: 56px;
+    }
+    .lp__brand-name {
+        font-size: 36px;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -1px;
+        margin: 0 0 6px;
+        line-height: 1;
+    }
+    .lp__brand-name em { color: #B58E45; font-style: normal; }
+    .lp__brand-sub {
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.35);
+        margin: 0;
+    }
+
+    /* stat cards */
+    .lp__cards {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+        max-width: 340px;
+    }
+    .lp__card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 18px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.07);
+        border-radius: 14px;
+        backdrop-filter: blur(12px);
+        animation: cardSlide 0.5s cubic-bezier(.4,0,.2,1) both;
+        opacity: 0;
+    }
+    .lp__card:nth-child(1) { animation-delay: 0.25s; }
+    .lp__card:nth-child(2) { animation-delay: 0.40s; }
+    .lp__card:nth-child(3) { animation-delay: 0.55s; }
+
+    @keyframes cardSlide {
+        from { opacity: 0; transform: translateY(12px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .lp__card-icon {
+        flex-shrink: 0;
+        width: 42px; height: 42px;
+        border-radius: 11px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 20px;
+    }
+    .ic-gold { background: rgba(181,142,69,0.18); }
+    .ic-teal { background: rgba(36,127,113,0.18); }
+    .ic-slate { background: rgba(255,255,255,0.08); }
+
+    .lp__card-body { min-width: 0; }
+    .lp__card-label {
+        font-size: 9px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        color: rgba(255,255,255,0.35);
+        margin-bottom: 2px;
+    }
+    .lp__card-value {
+        font-size: 17px;
+        font-weight: 700;
+        color: #fff;
+        white-space: nowrap;
+    }
+    .lp__card-value b { color: #B58E45; font-weight: 800; }
+
+    /* ============================================================
+       RIGHT PANEL — warm paper, form
+    ============================================================ */
+    .lp__right {
+        flex: 1;
+        background: #F0EDE8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 48px 40px;
+        position: relative;
+    }
+
+    /* subtle left divider line */
+    .lp__right::before {
+        content: '';
+        position: absolute;
+        left: 0; top: 15%; bottom: 15%;
+        width: 1px;
+        background: linear-gradient(to bottom, transparent, rgba(181,142,69,0.25) 50%, transparent);
+    }
+
+    /* ============================================================
+       FORM CARD
+    ============================================================ */
+    .lp__form-wrap {
+        width: 100%;
+        max-width: 360px;
+        animation: formIn 0.5s ease 0.1s both;
+        opacity: 0;
+    }
+    @keyframes formIn {
+        from { opacity: 0; transform: translateY(14px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* logo */
+    .lp__logo { height: 40px; width: auto; display: block; margin-bottom: 28px; }
+
+    /* heading */
+    .lp__heading { font-size: 24px; font-weight: 700; color: #111827; margin: 0 0 4px; line-height: 1.2; }
+    .lp__sub { font-size: 13px; color: #6b7280; margin: 0 0 32px; }
+
+    /* divider */
+    .lp__divider {
+        width: 32px; height: 3px;
+        background: #B58E45;
+        border-radius: 99px;
+        margin: 0 0 28px;
+    }
+
+    /* error */
+    .lp__error {
+        margin-bottom: 20px;
+        padding: 12px 16px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 10px;
+        font-size: 13px;
+        color: #dc2626;
+        line-height: 1.5;
+    }
+    .lp__error p { margin: 0; }
+
+    /* field */
+    .lp__field { margin-bottom: 16px; }
+    .lp__label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #374151;
+        letter-spacing: 0.3px;
+        margin-bottom: 7px;
+    }
+    .lp__input {
+        display: block;
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid #D4C9B0;
+        border-radius: 10px;
+        background: #fff;
+        font-size: 14px;
+        color: #111827;
+        outline: none;
+        transition: border-color 0.18s, box-shadow 0.18s;
+        -webkit-appearance: none;
+    }
+    .lp__input:focus {
+        border-color: #B58E45;
+        box-shadow: 0 0 0 3px rgba(181,142,69,0.14);
+    }
+    /* kill browser autofill blue tint */
+    .lp__input:-webkit-autofill,
+    .lp__input:-webkit-autofill:hover,
+    .lp__input:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0 1000px #fff inset;
+        -webkit-text-fill-color: #111827;
+        border-color: #D4C9B0;
+    }
+
+    /* button */
+    .lp__btn {
+        display: block;
+        width: 100%;
+        padding: 13px;
+        margin-top: 8px;
+        background: #B58E45;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        cursor: pointer;
+        transition: background 0.18s, box-shadow 0.18s, transform 0.12s;
+    }
+    .lp__btn:hover {
+        background: #9d7a38;
+        box-shadow: 0 6px 20px rgba(181,142,69,0.30);
+        transform: translateY(-1px);
+    }
+    .lp__btn:active { transform: translateY(0); box-shadow: none; }
+
+    /* footer */
+    .lp__footer {
+        margin-top: 28px;
+        font-size: 11.5px;
+        color: #aaa;
+        text-align: center;
+        letter-spacing: 0.2px;
+    }
+
+    /* ============================================================
+       MOBILE  ≤ 768 px
+       Stack: dark panel (compact) on top, form on bottom
+    ============================================================ */
+    @media (max-width: 768px) {
+        html, body { height: auto; }
+        .lp { flex-direction: column; min-height: 100svh; }
+
+        .lp__left {
+            flex: none;
+            width: 100%;
+            padding: 36px 24px 32px;
+        }
+        .lp__brand { margin-bottom: 0; }
+        .lp__brand-name { font-size: 28px; }
+        .lp__cards { display: none; }   /* hide cards on mobile for clarity */
+
+        .lp__right {
+            flex: 1;
+            width: 100%;
+            padding: 36px 24px 48px;
+            align-items: flex-start;
+        }
+        .lp__right::before { display: none; }
+
+        .lp__form-wrap { max-width: 100%; }
+        .lp__logo { height: 36px; }
+    }
+</style>
+
+<div class="lp">
+
+    <!-- ===== LEFT DARK PANEL ===== -->
+    <div class="lp__left">
+        <canvas id="lp-canvas"></canvas>
+
+        <div class="lp__brand">
+            <p class="lp__brand-name">Trakvo<em>.</em></p>
+            <p class="lp__brand-sub">Education Management Platform</p>
         </div>
-        
-        {% if form.errors or messages %}
-            <div class="mb-6 p-4 bg-red-50 border border-red-100 rounded-lg text-sm text-red-600">
-                {% if form.errors %}<p class="font-medium">Invalid phone number or password.</p>{% endif %}
-                {% for message in messages %}
-                    <p>{{ message }}</p>
-                {% endfor %}
+
+        <div class="lp__cards">
+            <div class="lp__card">
+                <div class="lp__card-icon ic-gold">
+                    <!-- Graduation cap -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#B58E45" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/>
+                        <path d="M6 12v5c0 1.657 2.686 3 6 3s6-1.343 6-3v-5"/>
+                    </svg>
+                </div>
+                <div class="lp__card-body">
+                    <div class="lp__card-label">Students Enrolled</div>
+                    <div class="lp__card-value"><b>1,240+</b> learners</div>
+                </div>
             </div>
-        {% endif %}
-        
-        <form method="post" class="space-y-5">
-            {% csrf_token %}
-            <div>
-                <label for="id_username" class="block text-sm font-medium font-sans text-brand-ink mb-1">Phone Number</label>
-                <input type="text" name="username" id="id_username" required autofocus 
-                       class="w-full px-4 py-2 border border-brand-hairline rounded-lg focus:ring-2 focus:ring-brand-brass focus:border-transparent outline-none transition-all">
+            <div class="lp__card">
+                <div class="lp__card-icon ic-teal">
+                    <!-- Bar chart -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#247F71" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="12" width="4" height="9" rx="1"/>
+                        <rect x="10" y="7" width="4" height="14" rx="1"/>
+                        <rect x="17" y="3" width="4" height="18" rx="1"/>
+                    </svg>
+                </div>
+                <div class="lp__card-body">
+                    <div class="lp__card-label">Attendance Tracked</div>
+                    <div class="lp__card-value"><b>98%</b> accuracy</div>
+                </div>
             </div>
-            <div>
-                <label for="id_password" class="block text-sm font-medium font-sans text-brand-ink mb-1">Password</label>
-                <input type="password" name="password" id="id_password" required 
-                       class="w-full px-4 py-2 border border-brand-hairline rounded-lg focus:ring-2 focus:ring-brand-brass focus:border-transparent outline-none transition-all">
+            <div class="lp__card">
+                <div class="lp__card-icon ic-slate">
+                    <!-- Building / institute -->
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v3M12 14v3M16 14v3"/>
+                    </svg>
+                </div>
+                <div class="lp__card-body">
+                    <div class="lp__card-label">Trusted By</div>
+                    <div class="lp__card-value">Schools &amp; <b>Institutes</b></div>
+                </div>
             </div>
-            {% include 'core/_form_actions.html' with submit_text='Log In' full_width=True %}
-        </form>
+        </div>
     </div>
+
+    <!-- ===== RIGHT FORM PANEL ===== -->
+    <div class="lp__right">
+        <div class="lp__form-wrap">
+
+            <h1 class="lp__heading">Welcome back</h1>
+            <p class="lp__sub">Sign in to your Trakvo account</p>
+            <div class="lp__divider"></div>
+
+            {% if form.errors or messages %}
+            <div class="lp__error">
+                {% if form.errors %}<p><strong>Invalid phone number or password.</strong></p>{% endif %}
+                {% for message in messages %}<p>{{ message }}</p>{% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="lp__field">
+                    <label class="lp__label" for="id_username">PHONE NUMBER</label>
+                    <input class="lp__input" type="text" name="username" id="id_username"
+                           placeholder="e.g. 9876543210" required autofocus autocomplete="username">
+                </div>
+                <div class="lp__field">
+                    <label class="lp__label" for="id_password">PASSWORD</label>
+                    <input class="lp__input" type="password" name="password" id="id_password"
+                           placeholder="Enter your password" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="lp__btn">Sign In</button>
+            </form>
+
+            <p class="lp__footer">Trakvo &copy; 2025 &nbsp;&mdash;&nbsp; Secure Education Platform</p>
+        </div>
+    </div>
+
 </div>
+
+<script>
+(function () {
+    const canvas = document.getElementById('lp-canvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const panel = canvas.parentElement;
+
+    function resize() {
+        canvas.width  = panel.offsetWidth  || window.innerWidth;
+        canvas.height = panel.offsetHeight || window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const ICONS = ['📚','🎓','✏️','📐','🌐','💡','🔬','📊','📝','🏫','📋','🖊️'];
+    const COUNT = window.innerWidth < 768 ? 8 : 18;
+    const pts   = [];
+
+    function rand(a, b) { return a + Math.random() * (b - a); }
+
+    function make(spread) {
+        return {
+            x    : rand(0, canvas.width),
+            y    : spread ? rand(0, canvas.height) : canvas.height + 50,
+            sz   : rand(14, 30),
+            vy   : rand(0.22, 0.55),
+            vx   : rand(-0.12, 0.12),
+            op   : spread ? rand(0, 0.11) : 0,
+            maxOp: rand(0.06, 0.13),
+            rot  : rand(0, Math.PI * 2),
+            rotV : rand(-0.003, 0.003),
+            icon : ICONS[Math.floor(Math.random() * ICONS.length)],
+            in_  : true,
+        };
+    }
+
+    for (let i = 0; i < COUNT; i++) pts.push(make(true));
+
+    function frame() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // grid
+        ctx.strokeStyle = 'rgba(255,255,255,0.025)';
+        ctx.lineWidth = 1;
+        for (let x = 0; x < canvas.width;  x += 56) { ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
+        for (let y = 0; y < canvas.height; y += 56) { ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width, y);   ctx.stroke(); }
+
+        // warm glow
+        const g = ctx.createRadialGradient(canvas.width*.35, canvas.height*.65, 0, canvas.width*.35, canvas.height*.65, Math.max(canvas.width, canvas.height)*.55);
+        g.addColorStop(0, 'rgba(181,142,69,0.09)');
+        g.addColorStop(1, 'transparent');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // particles
+        for (let i = pts.length - 1; i >= 0; i--) {
+            const p = pts[i];
+            p.y   -= p.vy;
+            p.x   += p.vx;
+            p.rot += p.rotV;
+
+            if (p.in_) { p.op += 0.0018; if (p.op >= p.maxOp) { p.op = p.maxOp; p.in_ = false; } }
+            if (p.y < canvas.height * 0.08) {
+                p.op -= 0.0025;
+                if (p.op <= 0) { pts[i] = make(false); continue; }
+            }
+
+            ctx.save();
+            ctx.globalAlpha = p.op;
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot);
+            ctx.font = `${p.sz}px serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(p.icon, 0, 0);
+            ctx.restore();
+        }
+
+        requestAnimationFrame(frame);
+    }
+    frame();
+}());
+</script>
 {% endblock %}
