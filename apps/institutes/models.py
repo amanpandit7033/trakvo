@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 
 class Institute(models.Model):
@@ -9,6 +10,7 @@ class Institute(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_suspended = models.BooleanField(default=False)
     trial_ends_on = models.DateField(null=True, blank=True)
+    access_token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     def __str__(self):
         return self.name

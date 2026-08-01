@@ -1,0 +1,515 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoreboard - {{ institute.name }} | Trakvo</title>
+    <link rel="icon" type="image/png" href="{% static 'img/trakvo-icon.png' %}">
+    <link rel="stylesheet" href="{% static 'css/output.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
+    <style>
+        .gold-border { border-color: #F59E0B; }
+        .gold-bg-subtle { background-color: #FFFBEB; }
+        .gold-badge { background-color: #FEF3C7; color: #92400E; border: 1px solid #FCD34D; }
+        
+        .silver-border { border-color: #94A3B8; }
+        .silver-bg-subtle { background-color: #F8FAFC; }
+        .silver-badge { background-color: #F1F5F9; color: #334155; border: 1px solid #CBD5E1; }
+        
+        .bronze-border { border-color: #D97706; }
+        .bronze-bg-subtle { background-color: #FFF7ED; }
+        .bronze-badge { background-color: #FFEDD5; color: #9A3412; border: 1px solid #FDBA74; }
+    </style>
+</head>
+<body class="bg-[#F8FAFC] text-[#1E293B] font-sans min-h-screen flex flex-col antialiased selection:bg-brand-brass selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-brand-ink text-white border-b border-white/10 sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3 min-w-0">
+                {% if institute.logo %}
+                    <img src="{{ institute.logo.url }}" alt="{{ institute.name }}" class="h-10 w-10 object-contain rounded-lg bg-white p-1 shadow-sm shrink-0">
+                {% else %}
+                    <div class="h-10 w-10 rounded-lg bg-brand-brass flex items-center justify-center text-white font-bold text-lg shadow-sm font-serif shrink-0">
+                        {{ institute.name|slice:":1" }}
+                    </div>
+                {% endif %}
+                <div class="min-w-0">
+                    <h1 class="text-base sm:text-lg font-bold font-serif leading-tight text-white tracking-tight truncate">{{ institute.name }}</h1>
+                    <p class="text-xs text-slate-400 flex items-center space-x-1 truncate">
+                        <span>{{ institute.city }}</span>
+                        <span>•</span>
+                        <span class="text-brand-brass font-medium">Official Leaderboard</span>
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+                {% if is_staff %}
+                    <a href="{% url 'accounts:owner_dashboard' %}" class="inline-flex items-center px-3 py-1.5 border border-white/20 rounded-lg text-xs font-medium text-slate-200 hover:bg-white/10 hover:text-white transition-all">
+                        <svg class="w-4 h-4 text-slate-400 sm:mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path></svg>
+                        <span class="hidden sm:inline">Dashboard</span>
+                    </a>
+                {% endif %}
+                <button onclick="copyScoreboardLink()" class="inline-flex items-center px-3.5 py-1.5 sm:px-4 sm:py-2 bg-brand-brass hover:bg-amber-600 text-white rounded-lg text-xs font-semibold shadow-sm transition-all transform active:scale-95">
+                    <svg class="w-4 h-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 01-2-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                    <span>Share <span class="hidden sm:inline">Scoreboard</span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Copy Toast Notification -->
+    <div id="copy-toast" class="fixed bottom-6 right-6 bg-brand-ink text-white text-sm px-5 py-3.5 rounded-xl shadow-2xl border border-brand-brass hidden flex items-center space-x-3 z-50 transition-all duration-300">
+        <div class="h-8 w-8 rounded-full bg-brand-brass/20 text-brand-brass flex items-center justify-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <div>
+            <p class="font-semibold text-white">Link Copied!</p>
+            <p class="text-xs text-slate-300">Scoreboard link copied to clipboard.</p>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+
+        <!-- Controls Filter Header Card (100% Responsive Grid) -->
+        <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 p-5 sm:p-6 lg:p-7 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div class="space-y-1">
+                <div class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200/60">
+                    🏆 Performance Directory
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-bold font-serif text-slate-900 tracking-tight">Academic Scoreboard</h2>
+                <p class="text-xs sm:text-sm text-slate-500 max-w-xl">Filter by batch and test to review student ranks and detailed scoring analysis.</p>
+            </div>
+
+            <!-- Interactive Filters Form -->
+            <form method="get" class="w-full lg:w-auto bg-slate-50/80 p-3.5 sm:p-4 rounded-xl border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-3.5 lg:min-w-[500px]">
+                <!-- Batch Select -->
+                <div class="w-full min-w-0">
+                    <label for="batch" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Filter Batch</label>
+                    <select name="batch" id="batch" onchange="this.form.submit()" class="w-full bg-white border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-2 focus:ring-brand-brass focus:border-brand-brass block p-2.5 font-medium shadow-2xs cursor-pointer transition-colors truncate">
+                        <option value="">All Batches</option>
+                        {% for b in batches %}
+                            <option value="{{ b.id }}" {% if selected_batch and selected_batch.id == b.id %}selected{% endif %}>{{ b.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Test Select -->
+                <div class="w-full min-w-0">
+                    <label for="test" class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">Select Test / Exam</label>
+                    <select name="test" id="test" onchange="this.form.submit()" class="w-full bg-white border border-slate-300 text-slate-800 text-sm rounded-lg focus:ring-2 focus:ring-brand-brass focus:border-brand-brass block p-2.5 font-medium shadow-2xs cursor-pointer transition-colors truncate">
+                        {% if tests %}
+                            {% for t in tests %}
+                                <option value="{{ t.id }}" {% if selected_test and selected_test.id == t.id %}selected{% endif %}>
+                                    {{ t.name }} ({{ t.test_date|date:"M d, Y" }}) - {{ t.batch.name }}
+                                </option>
+                            {% endfor %}
+                        {% else %}
+                            <option value="">No tests published</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        {% if selected_test %}
+
+            <!-- Selected Test Banner Card -->
+            <div class="bg-brand-ink text-white rounded-2xl shadow-lg p-6 md:p-8 relative overflow-hidden border border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <!-- Background Accent Glow -->
+                <div class="absolute -top-24 -right-24 w-64 h-64 bg-brand-brass/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="space-y-2 relative z-10">
+                    <div class="inline-flex items-center space-x-2">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-brand-brass/20 text-brand-brass border border-brand-brass/30">
+                            {{ selected_test.batch.name }}
+                        </span>
+                        <span class="text-xs text-slate-400">• {{ selected_test.test_date|date:"F d, Y" }}</span>
+                    </div>
+                    <h3 class="text-2xl md:text-3xl font-bold font-serif text-white tracking-tight">{{ selected_test.name }}</h3>
+                    <p class="text-xs text-slate-400">Total registered participants evaluated: <span class="text-white font-semibold font-mono">{{ ranked_results|length }}</span></p>
+                </div>
+
+                <div class="flex items-center space-x-6 relative z-10 border-t md:border-t-0 md:border-l border-white/10 pt-4 md:pt-0 md:pl-8">
+                    <div class="text-center">
+                        <span class="block text-3xl font-bold font-mono text-brand-brass">{{ selected_test.max_marks|floatformat:"-2" }}</span>
+                        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Maximum Marks</span>
+                    </div>
+                    <div class="text-center pl-6 border-l border-white/10">
+                        <span class="block text-3xl font-bold font-mono text-white">{{ ranked_results|length }}</span>
+                        <span class="text-[11px] uppercase tracking-wider text-slate-400 font-medium">Submissions</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top 3 Rank Performers Podium Section -->
+            {% if top_3 %}
+            <div class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center space-x-2">
+                        <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                        <span>Top Performers</span>
+                    </h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    <!-- Rank 1 (Gold) -->
+                    {% for item in top_3 %}
+                        {% if item.rank == 1 %}
+                        <div class="bg-gradient-to-b from-amber-50/80 to-white rounded-2xl border-2 gold-border p-6 shadow-md relative overflow-hidden transition-all duration-300 hover:shadow-lg">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-12 w-12 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center text-amber-900 font-bold font-serif text-lg shadow-sm">
+                                        {{ item.student.full_name|slice:":1" }}
+                                    </div>
+                                    <div>
+                                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider gold-badge mb-0.5">
+                                            🥇 Rank 1 • Gold
+                                        </span>
+                                        <h4 class="text-lg font-bold text-slate-900 leading-tight leading-snug">{{ item.student.full_name }}</h4>
+                                        <p class="text-xs text-slate-500 font-medium">{{ item.student.batch.name }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 border-t border-amber-200/60 flex items-baseline justify-between">
+                                <div>
+                                    <span class="text-xs font-semibold uppercase text-slate-400 block mb-0.5">Score</span>
+                                    <span class="text-2xl font-bold font-mono text-amber-900">{{ item.marks|floatformat:"-2" }}</span>
+                                    <span class="text-xs text-slate-500 font-mono">/ {{ item.max_marks|floatformat:"-2" }}</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-semibold uppercase text-slate-400 block mb-0.5">Percentage</span>
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-500 text-white shadow-sm">
+                                        {{ item.percentage }}%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Rank 2 (Silver) -->
+                    {% for item in top_3 %}
+                        {% if item.rank == 2 %}
+                        <div class="bg-gradient-to-b from-slate-50/90 to-white rounded-2xl border-2 silver-border p-6 shadow-sm relative overflow-hidden transition-all duration-300 hover:shadow-md">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-12 w-12 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center text-slate-800 font-bold font-serif text-lg shadow-sm">
+                                        {{ item.student.full_name|slice:":1" }}
+                                    </div>
+                                    <div>
+                                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider silver-badge mb-0.5">
+                                            🥈 Rank 2 • Silver
+                                        </span>
+                                        <h4 class="text-lg font-bold text-slate-900 leading-tight leading-snug">{{ item.student.full_name }}</h4>
+                                        <p class="text-xs text-slate-500 font-medium">{{ item.student.batch.name }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 border-t border-slate-200 flex items-baseline justify-between">
+                                <div>
+                                    <span class="text-xs font-semibold uppercase text-slate-400 block mb-0.5">Score</span>
+                                    <span class="text-2xl font-bold font-mono text-slate-800">{{ item.marks|floatformat:"-2" }}</span>
+                                    <span class="text-xs text-slate-500 font-mono">/ {{ item.max_marks|floatformat:"-2" }}</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-semibold uppercase text-slate-400 block mb-0.5">Percentage</span>
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-700 text-white shadow-sm">
+                                        {{ item.percentage }}%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Rank 3 (Bronze) -->
+                    {% for item in top_3 %}
+                        {% if item.rank == 3 %}
+                        <div class="bg-gradient-to-b from-orange-50/70 to-white rounded-2xl border-2 bronze-border p-6 shadow-sm relative overflow-hidden transition-all duration-300 hover:shadow-md">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex items-center space-x-3">
+                                    <div class="h-12 w-12 rounded-full bg-orange-100 border border-orange-300 flex items-center justify-center text-orange-950 font-bold font-serif text-lg shadow-sm">
+                                        {{ item.student.full_name|slice:":1" }}
+                                    </div>
+                                    <div>
+                                        <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bronze-badge mb-0.5">
+                                            🥉 Rank 3 • Bronze
+                                        </span>
+                                        <h4 class="text-lg font-bold text-slate-900 leading-tight leading-snug">{{ item.student.full_name }}</h4>
+                                        <p class="text-xs text-slate-500 font-medium">{{ item.student.batch.name }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 border-t border-orange-200/60 flex items-baseline justify-between">
+                                <div>
+                                    <span class="text-xs font-semibold uppercase text-slate-400 block mb-0.5">Score</span>
+                                    <span class="text-2xl font-bold font-mono text-amber-950">{{ item.marks|floatformat:"-2" }}</span>
+                                    <span class="text-xs text-slate-500 font-mono">/ {{ item.max_marks|floatformat:"-2" }}</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-semibold uppercase text-slate-400 block mb-0.5">Percentage</span>
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-700 text-white shadow-sm">
+                                        {{ item.percentage }}%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Complete Leaderboard Container -->
+            <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 overflow-hidden">
+                <!-- Section Header with Title & Search -->
+                <div class="p-5 md:p-6 border-b border-slate-200/80 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div class="space-y-0.5">
+                        <h3 class="text-xl font-bold text-slate-900 font-serif tracking-tight">Complete Leaderboard</h3>
+                        <p class="text-xs text-slate-500">All registered participants ranked by test score.</p>
+                    </div>
+
+                    <!-- Client-side Search Input -->
+                    <div class="relative w-full md:w-72">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" id="search-student" onkeyup="filterScoreboardTable()" placeholder="Search student name..." class="bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl focus:ring-2 focus:ring-brand-brass focus:border-brand-brass block w-full pl-10 pr-4 py-2.5 transition-all shadow-2xs">
+                    </div>
+                </div>
+
+                <!-- Desktop / Tablet Table View (Hidden on mobile) -->
+                <div class="hidden sm:block overflow-x-auto min-w-full">
+                    <table class="w-full text-left text-sm text-slate-700 align-middle" id="scoreboard-table">
+                        <thead class="bg-slate-50 text-slate-600 uppercase font-bold text-[11px] tracking-wider border-b border-slate-200/90 select-none">
+                            <tr>
+                                <th scope="col" class="py-4 px-6 text-center w-20">Rank</th>
+                                <th scope="col" class="py-4 px-6 min-w-[200px]">Student Name</th>
+                                <th scope="col" class="py-4 px-6 min-w-[160px]">Batch</th>
+                                <th scope="col" class="py-4 px-6 text-right whitespace-nowrap min-w-[140px]">Marks Obtained</th>
+                                <th scope="col" class="py-4 px-6 text-right whitespace-nowrap min-w-[110px]">Score (%)</th>
+                                <th scope="col" class="py-4 px-6 text-center whitespace-nowrap min-w-[130px]">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 font-medium">
+                            {% for item in ranked_results %}
+                            <tr class="student-row hover:bg-slate-50/80 transition-colors {% if item.rank == 1 %}bg-amber-50/30{% elif item.rank == 2 %}bg-slate-50/50{% elif item.rank == 3 %}bg-orange-50/20{% endif %}">
+                                <!-- Rank -->
+                                <td class="py-4 px-6 text-center font-bold font-mono">
+                                    {% if item.rank == 1 %}
+                                        <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-amber-400 text-amber-950 shadow-xs font-bold text-xs">1</span>
+                                    {% elif item.rank == 2 %}
+                                        <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-slate-300 text-slate-900 shadow-xs font-bold text-xs">2</span>
+                                    {% elif item.rank == 3 %}
+                                        <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-amber-600 text-white shadow-xs font-bold text-xs">3</span>
+                                    {% else %}
+                                        <span class="text-slate-400 font-semibold text-sm">#{{ item.rank }}</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Student Name with Initial Avatar -->
+                                <td class="py-4 px-6 font-semibold text-slate-900 student-name-cell">
+                                    <div class="flex items-center space-x-3.5">
+                                        <div class="h-9 w-9 rounded-full bg-slate-100 text-slate-700 font-serif font-bold text-xs flex items-center justify-center border border-slate-200 shrink-0">
+                                            {{ item.student.full_name|slice:":1" }}
+                                        </div>
+                                        <span class="truncate max-w-[220px]">{{ item.student.full_name }}</span>
+                                    </div>
+                                </td>
+
+                                <!-- Batch Pill -->
+                                <td class="py-4 px-6 text-slate-600 text-xs font-normal">
+                                    <span class="inline-block px-3 py-1 bg-slate-100 rounded-lg text-slate-700 font-medium border border-slate-200/60 truncate max-w-[180px]">
+                                        {{ item.student.batch.name }}
+                                    </span>
+                                </td>
+
+                                <!-- Marks Obtained -->
+                                <td class="py-4 px-6 text-right font-mono font-bold text-slate-900 whitespace-nowrap">
+                                    <span class="text-base">{{ item.marks|floatformat:"-2" }}</span>
+                                    <span class="text-xs text-slate-400 font-normal ml-1">/ {{ item.max_marks|floatformat:"-2" }}</span>
+                                </td>
+
+                                <!-- Percentage -->
+                                <td class="py-4 px-6 text-right font-mono font-bold whitespace-nowrap">
+                                    <span class="{% if item.percentage >= 80 %}text-emerald-600{% elif item.percentage >= 60 %}text-amber-600{% else %}text-slate-600{% endif %}">
+                                        {{ item.percentage }}%
+                                    </span>
+                                </td>
+
+                                <!-- Performance Status Tag -->
+                                <td class="py-4 px-6 text-center whitespace-nowrap">
+                                    {% if item.rank <= 3 %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold gold-badge shadow-2xs">
+                                            🏆 Top Performer
+                                        </span>
+                                    {% elif item.percentage >= 80 %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                            🌟 Excellent
+                                        </span>
+                                    {% elif item.percentage >= 60 %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-800 border border-blue-200">
+                                            👍 Good
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200/60">
+                                            Completed
+                                        </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="py-12 text-center text-slate-500">
+                                    No marks recorded for this test yet.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Card View (Shown on phone screens < sm) -->
+                <div class="block sm:hidden divide-y divide-slate-100" id="scoreboard-mobile-list">
+                    {% for item in ranked_results %}
+                    <div class="p-4 space-y-3 student-mobile-card {% if item.rank == 1 %}bg-amber-50/40{% elif item.rank == 2 %}bg-slate-50/60{% elif item.rank == 3 %}bg-orange-50/30{% endif %}">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <!-- Rank Badge -->
+                                {% if item.rank == 1 %}
+                                    <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-amber-400 text-amber-950 font-bold text-xs shadow-xs">1</span>
+                                {% elif item.rank == 2 %}
+                                    <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-slate-300 text-slate-900 font-bold text-xs shadow-xs">2</span>
+                                {% elif item.rank == 3 %}
+                                    <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-amber-600 text-white font-bold text-xs shadow-xs">3</span>
+                                {% else %}
+                                    <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-slate-100 text-slate-500 font-semibold text-xs border border-slate-200">#{{ item.rank }}</span>
+                                {% endif %}
+
+                                <div>
+                                    <h4 class="font-bold text-slate-900 text-sm student-name-cell">{{ item.student.full_name }}</h4>
+                                    <p class="text-xs text-slate-500 font-medium">{{ item.student.batch.name }}</p>
+                                </div>
+                            </div>
+
+                            <!-- Performance Badge -->
+                            <div>
+                                {% if item.rank <= 3 %}
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase gold-badge">Top 3</span>
+                                {% elif item.percentage >= 80 %}
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-50 text-emerald-800 border border-emerald-200">Excellent</span>
+                                {% elif item.percentage >= 60 %}
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-blue-50 text-blue-800 border border-blue-200">Good</span>
+                                {% else %}
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600">Done</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Score Progress Row -->
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-200/50">
+                            <div>
+                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Marks</span>
+                                <span class="text-sm font-bold font-mono text-slate-900">{{ item.marks|floatformat:"-2" }}</span>
+                                <span class="text-xs text-slate-400 font-mono">/ {{ item.max_marks|floatformat:"-2" }}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Score</span>
+                                <span class="text-sm font-bold font-mono {% if item.percentage >= 80 %}text-emerald-600{% elif item.percentage >= 60 %}text-amber-600{% else %}text-slate-700{% endif %}">
+                                    {{ item.percentage }}%
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="p-8 text-center text-slate-500 text-sm">
+                        No marks recorded for this test yet.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        {% else %}
+
+            <!-- Empty State -->
+            <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 p-12 text-center max-w-lg mx-auto space-y-4">
+                <div class="w-16 h-16 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <h3 class="text-xl font-bold font-serif text-slate-900">No Assessment Records</h3>
+                <p class="text-sm text-slate-500">There are currently no published test results for the selected filter criteria.</p>
+            </div>
+
+        {% endif %}
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            Powered by <strong class="text-slate-800 font-serif">Trakvo</strong> Coaching Management System • Strictly Confidential Scoreboard
+        </div>
+    </footer>
+
+    <script>
+        function copyScoreboardLink() {
+            const url = "{{ scoreboard_url }}";
+            navigator.clipboard.writeText(url).then(() => {
+                const toast = document.getElementById('copy-toast');
+                toast.classList.remove('hidden');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000);
+            }).catch(err => {
+                console.error('Failed to copy link: ', err);
+            });
+        }
+
+        function filterScoreboardTable() {
+            const input = document.getElementById("search-student");
+            const filter = input.value.toLowerCase();
+
+            // Filter Desktop Table Rows
+            const table = document.getElementById("scoreboard-table");
+            if (table) {
+                const rows = table.getElementsByTagName("tr");
+                for (let i = 1; i < rows.length; i++) {
+                    const nameCell = rows[i].querySelector(".student-name-cell");
+                    if (nameCell) {
+                        const textValue = nameCell.textContent || nameCell.innerText;
+                        if (textValue.toLowerCase().indexOf(filter) > -1) {
+                            rows[i].style.display = "";
+                        } else {
+                            rows[i].style.display = "none";
+                        }
+                    }
+                }
+            }
+
+            // Filter Mobile Cards
+            const mobileCards = document.querySelectorAll(".student-mobile-card");
+            mobileCards.forEach(card => {
+                const nameCell = card.querySelector(".student-name-cell");
+                if (nameCell) {
+                    const textValue = nameCell.textContent || nameCell.innerText;
+                    if (textValue.toLowerCase().indexOf(filter) > -1) {
+                        card.style.display = "";
+                    } else {
+                        card.style.display = "none";
+                    }
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

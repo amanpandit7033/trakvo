@@ -9,4 +9,6 @@ urlpatterns = [
     path('<int:test_id>/marks/', views.TestMarksEntryView.as_view(), name='marks_entry'),
     path('<int:test_id>/results/', views.TestResultsView.as_view(), name='test_results'),
     path('student/<int:student_id>/history/', views.StudentTestHistoryView.as_view(), name='student_history'),
+    path('scoreboard/', views.OwnerTeacherScoreboardRedirectView.as_view(), name='scoreboard'),
+    path('scoreboard/<uuid:token>/', views.InstituteScoreboardView.as_view(), name='institute_scoreboard'),
 ]

@@ -117,3 +117,96 @@ class StudentTestHistoryView(LoginRequiredMixin, View):
             'history': history
         }
         return render(request, 'assessments/student_test_history.html', context)
+
+from apps.institutes.models import Institute, Batch
+
+class InstituteScoreboardView(View):
+    def get(self, request, token):
+        # Fetch institute by unguessable access_token
+        institute = get_object_or_404(Institute, access_token=token)
+
+        # Security check 1: Enforce suspended status check
+        if institute.is_suspended:
+            return render(request, 'assessments/scoreboard_suspended.html', {'institute': institute}, status=403)
+
+        # Security check 2: Prevent authenticated users from another institute from accessing
+        if request.user.is_authenticated and request.user.role in ['owner', 'teacher']:
+            if request.user.institute and request.user.institute != institute:
+                messages.error(request, "You can only access your own institute's scoreboard.")
+                return redirect('assessments:scoreboard')
+
+        batches = Batch.objects.filter(institute=institute).order_by('name')
+
+        # Batch filter
+        selected_batch_id = request.GET.get('batch')
+        selected_batch = None
+        if selected_batch_id:
+            try:
+                selected_batch = batches.get(id=int(selected_batch_id))
+            except (ValueError, Batch.DoesNotExist):
+                selected_batch = None
+
+        # Filter tests by institute (and batch if selected)
+        tests_qs = Test.objects.filter(batch__institute=institute).select_related('batch').order_by('-test_date', '-created_at')
+        if selected_batch:
+            tests_qs = tests_qs.filter(batch=selected_batch)
+
+        tests = list(tests_qs)
+
+        # Selected test
+        test_id_param = request.GET.get('test')
+        selected_test = None
+
+        if test_id_param:
+            try:
+                test_id = int(test_id_param)
+                selected_test = next((t for t in tests if t.id == test_id), None)
+                if not selected_test:
+                    # Fallback check directly in DB scoped strictly to institute
+                    selected_test = Test.objects.filter(id=test_id, batch__institute=institute).first()
+            except ValueError:
+                pass
+
+        if not selected_test and tests:
+            selected_test = tests[0]
+
+        ranked_results = []
+        top_3 = []
+
+        if selected_test:
+            ranked_results = calculate_ranks(selected_test)
+            for item in ranked_results:
+                max_m = item['max_marks']
+                if max_m and max_m > 0:
+                    item['percentage'] = round((item['marks'] / max_m) * 100, 1)
+                else:
+                    item['percentage'] = 0.0
+            top_3 = ranked_results[:3]
+
+        total_students = Student.objects.filter(institute=institute, is_active=True).count()
+        is_staff = request.user.is_authenticated and request.user.institute == institute and request.user.role in ['owner', 'teacher']
+
+        scoreboard_url = request.build_absolute_uri()
+
+        context = {
+            'institute': institute,
+            'batches': batches,
+            'selected_batch': selected_batch,
+            'tests': tests,
+            'selected_test': selected_test,
+            'ranked_results': ranked_results,
+            'top_3': top_3,
+            'total_students': total_students,
+            'is_staff': is_staff,
+            'scoreboard_url': scoreboard_url,
+        }
+        return render(request, 'assessments/scoreboard.html', context)
+
+class OwnerTeacherScoreboardRedirectView(LoginRequiredMixin, View):
+    def get(self, request):
+        institute = request.user.institute
+        if not institute:
+            messages.error(request, "No institute assigned to your account.")
+            return redirect('accounts:login')
+        return redirect('assessments:institute_scoreboard', token=institute.access_token)
+
