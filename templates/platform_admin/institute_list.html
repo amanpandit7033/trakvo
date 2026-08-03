@@ -2,70 +2,86 @@
 {% block title %}Institutes | Trakvo Platform Admin{% endblock %}
 
 {% block content %}
-<div class="p-4 md:p-8 max-w-7xl mx-auto">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+<div class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+    <!-- Header Banner -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h2 class="text-3xl font-semibold font-serif text-brand-ink mb-2">Institutes</h2>
-            <p class="text-gray-500 font-sans">Manage all registered institutes on the platform.</p>
+            <h2 class="text-2xl sm:text-3xl font-bold font-serif text-slate-900 tracking-tight">Registered Institutes</h2>
+            <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Manage coaching institutes, subscriptions, and tenant statuses.</p>
         </div>
-        <a href="{% url 'platform_admin:institute_create' %}" class="px-6 py-2 bg-brand-brass text-brand-ink font-bold rounded-lg border border-brand-brass hover:bg-opacity-90 transition-colors shadow">
-            + Create Institute
+        <a href="{% url 'platform_admin:institute_create' %}" class="inline-flex items-center px-4 py-2.5 bg-brand-brass hover:bg-amber-600 text-white rounded-xl text-xs font-semibold shadow-xs transition-all transform active:scale-95 self-start sm:self-auto">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Create New Institute
         </a>
     </div>
 
-    <!-- Filters -->
-    <div class="bg-white p-4 rounded-xl shadow-card border border-brand-hairline mb-6">
-        <form method="get" class="flex flex-col sm:flex-row flex-1 gap-4">
-            <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search by name..." class="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-ink/20">
-            <select name="status" class="px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-ink/20">
-                <option value="">All Statuses</option>
-                <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
-                <option value="suspended" {% if request.GET.status == 'suspended' %}selected{% endif %}>Suspended</option>
-            </select>
-            <button type="submit" class="bg-brand-ink text-white px-6 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-colors">
-                Filter
-            </button>
+    <!-- Filters Bar -->
+    <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 p-4 sm:p-5">
+        <form method="get" class="flex flex-col sm:flex-row items-center gap-3.5 w-full">
+            <div class="relative flex-1 w-full">
+                <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search by institute name..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:ring-2 focus:ring-brand-brass focus:border-brand-brass outline-none transition-all shadow-2xs">
+            </div>
+            <div class="w-full sm:w-56">
+                <select name="status" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:ring-2 focus:ring-brand-brass focus:border-brand-brass outline-none transition-all cursor-pointer shadow-2xs">
+                    <option value="">All Statuses</option>
+                    <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Active</option>
+                    <option value="suspended" {% if request.GET.status == 'suspended' %}selected{% endif %}>Suspended</option>
+                </select>
+            </div>
+            <div class="flex items-center space-x-2 w-full sm:w-auto shrink-0">
+                <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-brand-ink hover:bg-slate-800 text-white font-semibold text-xs rounded-xl transition-all shadow-xs">
+                    Filter
+                </button>
+                {% if request.GET.search or request.GET.status %}
+                    <a href="{% url 'platform_admin:institute_list' %}" class="px-4 py-2.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors">Clear</a>
+                {% endif %}
+            </div>
         </form>
     </div>
 
-    <!-- Table -->
-    <div class="bg-white rounded-xl shadow-card border border-brand-hairline overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500">
-                        <th class="p-4 font-medium">Institute Name</th>
-                        <th class="p-4 font-medium">City</th>
-                        <th class="p-4 font-medium">Signup Date</th>
-                        <th class="p-4 font-medium">Students</th>
-                        <th class="p-4 font-medium">Status</th>
-                        <th class="p-4 font-medium text-right">Actions</th>
+    <!-- Table Container -->
+    <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 overflow-hidden">
+        <div class="overflow-x-auto min-w-full">
+            <table class="w-full text-left text-sm text-slate-700 align-middle">
+                <thead class="bg-slate-50 text-slate-500 uppercase font-bold text-[11px] tracking-wider border-b border-slate-200/80">
+                    <tr>
+                        <th scope="col" class="py-4 px-6 min-w-[200px]">Institute Name</th>
+                        <th scope="col" class="py-4 px-6 min-w-[130px]">City</th>
+                        <th scope="col" class="py-4 px-6 min-w-[130px]">Signup Date</th>
+                        <th scope="col" class="py-4 px-6 min-w-[100px]">Students</th>
+                        <th scope="col" class="py-4 px-6 min-w-[120px]">Status</th>
+                        <th scope="col" class="py-4 px-6 text-right whitespace-nowrap">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-slate-100 font-medium">
                     {% for inst in institutes %}
-                    <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="p-4">
-                            <div class="font-medium text-gray-900">{{ inst.name }}</div>
-                            <div class="text-sm text-gray-500">{{ inst.phone_number }}</div>
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-4 px-6 font-bold text-slate-900">
+                            <div>{{ inst.name }}</div>
+                            <div class="text-xs text-slate-400 font-mono font-normal">{{ inst.phone_number }}</div>
                         </td>
-                        <td class="p-4 text-gray-600">{{ inst.city }}</td>
-                        <td class="p-4 text-gray-600">{{ inst.created_at|date:"M j, Y" }}</td>
-                        <td class="p-4 text-gray-600">{{ inst.student_count }}</td>
-                        <td class="p-4">
+                        <td class="py-4 px-6 text-slate-600 font-medium">{{ inst.city }}</td>
+                        <td class="py-4 px-6 font-mono text-xs text-slate-500">{{ inst.created_at|date:"M j, Y" }}</td>
+                        <td class="py-4 px-6 font-mono font-bold text-slate-900">{{ inst.student_count }}</td>
+                        <td class="py-4 px-6">
                             {% if inst.is_suspended %}
-                                <span class="px-2 py-1 bg-brand-rust/10 text-brand-rust text-xs font-bold rounded-full">Suspended</span>
+                                <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-50 text-brand-rust border border-red-200">Suspended</span>
                             {% else %}
-                                <span class="px-2 py-1 bg-brand-teal/10 text-brand-teal text-xs font-bold rounded-full">Active</span>
+                                <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">Active</span>
                             {% endif %}
                         </td>
-                        <td class="p-4 text-right">
-                            <a href="{% url 'platform_admin:institute_detail' inst.pk %}" class="text-brand-ink font-medium hover:underline text-sm">View &rarr;</a>
+                        <td class="py-4 px-6 text-right whitespace-nowrap">
+                            <a href="{% url 'platform_admin:institute_detail' inst.pk %}" class="inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-brand-ink text-white hover:bg-slate-800 transition-colors shadow-2xs">
+                                View Details &rarr;
+                            </a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="p-8 text-center text-gray-500">No institutes found matching your criteria.</td>
+                        <td colspan="6" class="py-12 text-center text-slate-500 space-y-2">
+                            <p class="text-sm font-bold text-slate-800">No Institutes Found</p>
+                            <p class="text-xs text-slate-400">No registered institutes match your search criteria.</p>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

@@ -2,55 +2,75 @@
 {% block title %}Results: {{ test.name }} | Trakvo{% endblock %}
 {% load whatsapp_tags %}
 {% block content %}
-<div class="p-4 md:p-8">
-    <div class="flex items-center space-x-4 mb-6 border-b border-gray-100 pb-4">
-        <a href="{% url 'assessments:test_list' %}" class="text-gray-400 hover:text-gray-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+<div class="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto space-y-6">
+    <!-- Header Banner -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+        <div class="flex items-center space-x-4">
+            <a href="{% url 'assessments:test_list' %}" class="p-2 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-slate-900 transition-colors shadow-2xs">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            </a>
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-bold font-serif text-slate-900 tracking-tight">{{ test.name }} Leaderboard</h2>
+                <div class="flex items-center space-x-2 text-xs text-slate-500 font-medium mt-0.5">
+                    <span class="inline-block px-2 py-0.5 rounded bg-slate-100 font-bold text-slate-700">{{ test.batch.name }}</span>
+                    <span>•</span>
+                    <span>Max Marks: <strong class="font-mono text-slate-900">{{ test.max_marks }}</strong></span>
+                </div>
+            </div>
+        </div>
+        <a href="{% url 'assessments:marks_entry' test.id %}" class="inline-flex items-center px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition-colors self-start sm:self-auto">
+            Edit Marks
         </a>
-        <div>
-            <h2 class="text-2xl font-semibold text-gray-900">{{ test.name }} Results</h2>
-            <p class="text-gray-500 text-sm">{{ test.batch.name }} | Max Marks: {{ test.max_marks }}</p>
-        </div>
-        <div class="ml-auto">
-            <a href="{% url 'assessments:marks_entry' test.id %}" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg transition-colors text-sm">Edit Marks</a>
-        </div>
     </div>
 
-    <!-- Ranked List -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto w-full max-w-3xl">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-gray-50 text-gray-500 text-sm font-medium border-b border-gray-200">
-                    <th class="p-4 w-20 text-center">Rank</th>
-                    <th class="p-4">Student</th>
-                    <th class="p-4 text-right">Marks</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                {% for row in ranked_results %}
-                <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="p-4 text-center font-bold {% if row.rank == 1 %}text-yellow-600{% elif row.rank == 2 %}text-gray-400{% elif row.rank == 3 %}text-amber-700{% else %}text-gray-500{% endif %}">
-                        #{{ row.rank }}
-                    </td>
-                    <td class="p-4">
-                        <span class="font-medium text-gray-900 {% if row.rank <= 3 %}border-b-[3px] border-[#D4AF37] pb-0.5{% endif %}">
-                            {{ row.student.full_name }}
-                        </span>
-                    </td>
-                    <td class="p-4 text-right font-semibold text-gray-900 flex items-center justify-end space-x-4">
-                        <span>{{ row.marks }}</span>
-                        {% whatsapp_result_button row.result row.rank %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="3" class="p-8 text-center text-gray-500">
-                        No results published for this test.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Ranked Leaderboard Table -->
+    <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 overflow-hidden">
+        <div class="overflow-x-auto min-w-full">
+            <table class="w-full text-left text-sm text-slate-700 align-middle">
+                <thead class="bg-slate-50 text-slate-500 uppercase font-bold text-[11px] tracking-wider border-b border-slate-200/80">
+                    <tr>
+                        <th scope="col" class="py-4 px-6 text-center w-20">Rank</th>
+                        <th scope="col" class="py-4 px-6">Student Name</th>
+                        <th scope="col" class="py-4 px-6 text-right">Marks &amp; Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium">
+                    {% for row in ranked_results %}
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-4 px-6 text-center">
+                            {% if row.rank == 1 %}
+                                <span class="h-8 w-8 rounded-full bg-amber-100 text-amber-800 font-bold font-mono text-sm inline-flex items-center justify-center border border-amber-300">🥇 1</span>
+                            {% elif row.rank == 2 %}
+                                <span class="h-8 w-8 rounded-full bg-slate-100 text-slate-700 font-bold font-mono text-sm inline-flex items-center justify-center border border-slate-300">🥈 2</span>
+                            {% elif row.rank == 3 %}
+                                <span class="h-8 w-8 rounded-full bg-amber-700/10 text-amber-900 font-bold font-mono text-sm inline-flex items-center justify-center border border-amber-700/30">🥉 3</span>
+                            {% else %}
+                                <span class="font-bold font-mono text-slate-400">#{{ row.rank }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6">
+                            <span class="font-bold text-slate-900">
+                                {{ row.student.full_name }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 text-right">
+                            <div class="flex items-center justify-end space-x-4">
+                                <span class="font-bold font-mono text-base text-slate-900">{{ row.marks }}</span>
+                                {% whatsapp_result_button row.result row.rank %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="py-12 text-center text-slate-500 space-y-2">
+                            <p class="text-sm font-bold text-slate-800">No Marks Entry Recorded</p>
+                            <p class="text-xs text-slate-400">Click "Edit Marks" above to enter test scores for this batch.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

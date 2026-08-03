@@ -1,48 +1,68 @@
 {% extends 'base.html' %}
-{% block title %}Tests | Trakvo{% endblock %}
+{% block title %}Assessments | Trakvo{% endblock %}
 {% block content %}
-<div class="p-4 md:p-8">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-        <h2 class="text-2xl font-semibold font-serif text-brand-ink">Assessments Dashboard</h2>
-        <a href="{% url 'assessments:test_add' %}" class="bg-brand-brass hover:brightness-95 text-brand-ink font-medium py-2 px-4 rounded-lg transition-all shadow-sm inline-flex items-center">
-            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            New Test
+<div class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+    <!-- Header Banner -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-2xl sm:text-3xl font-bold font-serif text-slate-900 tracking-tight">Assessments &amp; Tests</h2>
+            <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Manage batch examinations, enter student marks, and view test leaderboards.</p>
+        </div>
+        <a href="{% url 'assessments:test_add' %}" class="inline-flex items-center px-4 py-2.5 bg-brand-brass hover:bg-amber-600 text-white rounded-xl text-xs font-semibold shadow-xs transition-all transform active:scale-95 self-start sm:self-auto">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Create New Test
         </a>
     </div>
 
-    <!-- List -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto w-full">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-gray-50 text-gray-500 text-sm font-medium border-b border-gray-200">
-                    <th class="p-4">Test Name</th>
-                    <th class="p-4">Batch</th>
-                    <th class="p-4">Date</th>
-                    <th class="p-4">Max Marks</th>
-                    <th class="p-4 text-right">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                {% for test in tests %}
-                <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="p-4 font-medium text-gray-900">{{ test.name }}</td>
-                    <td class="p-4 text-gray-600">{{ test.batch.name }}</td>
-                    <td class="p-4 text-gray-600">{{ test.test_date|date:"M j, Y" }}</td>
-                    <td class="p-4 text-gray-600">{{ test.max_marks }}</td>
-                    <td class="p-4 text-right space-x-3">
-                        <a href="{% url 'assessments:marks_entry' test.id %}" class="text-brand-blue hover:text-blue-800 text-sm font-medium">Enter Marks</a>
-                        <a href="{% url 'assessments:test_results' test.id %}" class="text-gray-600 hover:text-gray-900 text-sm font-medium">View Results</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="p-8 text-center text-gray-500">
-                        No tests created yet.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Table Container -->
+    <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 overflow-hidden">
+        <div class="overflow-x-auto min-w-full">
+            <table class="w-full text-left text-sm text-slate-700 align-middle">
+                <thead class="bg-slate-50 text-slate-500 uppercase font-bold text-[11px] tracking-wider border-b border-slate-200/80">
+                    <tr>
+                        <th scope="col" class="py-4 px-6 min-w-[200px]">Test Name</th>
+                        <th scope="col" class="py-4 px-6 min-w-[140px]">Batch</th>
+                        <th scope="col" class="py-4 px-6 min-w-[130px]">Test Date</th>
+                        <th scope="col" class="py-4 px-6 min-w-[110px]">Max Marks</th>
+                        <th scope="col" class="py-4 px-6 text-right whitespace-nowrap">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium">
+                    {% for test in tests %}
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-4 px-6 font-bold text-slate-900">
+                            <a href="{% url 'assessments:test_results' test.id %}" class="hover:text-brand-brass transition-colors">{{ test.name }}</a>
+                        </td>
+                        <td class="py-4 px-6 text-slate-600 text-xs font-normal">
+                            <span class="inline-block px-2.5 py-0.5 bg-slate-100 rounded-lg text-slate-700 font-medium border border-slate-200/60">
+                                {{ test.batch.name }}
+                            </span>
+                        </td>
+                        <td class="py-4 px-6 font-mono text-xs text-slate-500">{{ test.test_date|date:"M j, Y" }}</td>
+                        <td class="py-4 px-6 font-mono text-xs font-bold text-slate-900">{{ test.max_marks }}</td>
+                        <td class="py-4 px-6 text-right whitespace-nowrap space-x-2">
+                            <a href="{% url 'assessments:marks_entry' test.id %}" class="inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-brand-ink text-white hover:bg-slate-800 transition-colors shadow-2xs">
+                                Enter Marks
+                            </a>
+                            <a href="{% url 'assessments:test_results' test.id %}" class="inline-flex items-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors">
+                                View Results
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="py-12 text-center text-slate-500 space-y-2">
+                            <div class="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            </div>
+                            <p class="text-sm font-bold text-slate-800">No Assessments Created</p>
+                            <p class="text-xs text-slate-400">Click "Create New Test" to add your first batch exam.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

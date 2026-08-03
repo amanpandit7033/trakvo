@@ -2,69 +2,80 @@
 {% block title %}Activity Log | Trakvo Platform Admin{% endblock %}
 
 {% block content %}
-<div class="p-4 md:p-8 max-w-7xl mx-auto">
-    <div class="flex justify-between items-end mb-8">
+<div class="p-4 sm:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
+    <!-- Header Banner -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h2 class="text-3xl font-semibold font-serif text-brand-ink mb-2">Activity Log</h2>
-            <p class="text-gray-500 font-sans">Audit trail for platform administration actions.</p>
+            <h2 class="text-2xl sm:text-3xl font-bold font-serif text-slate-900 tracking-tight">Audit Activity Log</h2>
+            <p class="text-slate-500 text-xs sm:text-sm mt-0.5">Comprehensive audit trail of platform administrative events.</p>
         </div>
     </div>
 
-    <!-- Filters -->
-    <div class="bg-white p-4 rounded-xl shadow-card border border-brand-hairline mb-6">
-        <form method="get" class="flex flex-col sm:flex-row flex-1 gap-4">
-            <input type="text" name="institute" value="{{ request.GET.institute }}" placeholder="Filter by Institute ID..." class="flex-1 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-ink/20">
-            <button type="submit" class="bg-brand-ink text-white px-6 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-colors">
-                Filter
-            </button>
+    <!-- Filters Bar -->
+    <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 p-4 sm:p-5">
+        <form method="get" class="flex flex-col sm:flex-row items-center gap-3.5 w-full">
+            <div class="relative flex-1 w-full">
+                <input type="text" name="institute" value="{{ request.GET.institute }}" placeholder="Filter by Institute ID..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-medium text-slate-900 focus:ring-2 focus:ring-brand-brass focus:border-brand-brass outline-none transition-all shadow-2xs">
+            </div>
+            <div class="flex items-center space-x-2 w-full sm:w-auto shrink-0">
+                <button type="submit" class="w-full sm:w-auto px-5 py-2.5 bg-brand-ink hover:bg-slate-800 text-white font-semibold text-xs rounded-xl transition-all shadow-xs">
+                    Filter Logs
+                </button>
+                {% if request.GET.institute %}
+                    <a href="{% url 'platform_admin:activity_list' %}" class="px-4 py-2.5 text-xs font-semibold text-slate-500 hover:text-slate-800 transition-colors">Clear</a>
+                {% endif %}
+            </div>
         </form>
     </div>
 
-    <!-- Table -->
-    <div class="bg-white rounded-xl shadow-card border border-brand-hairline overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-50 border-b border-gray-100 text-xs uppercase tracking-wider text-gray-500">
-                        <th class="p-4 font-medium w-48">Timestamp</th>
-                        <th class="p-4 font-medium">User</th>
-                        <th class="p-4 font-medium">Action</th>
-                        <th class="p-4 font-medium">Target Institute</th>
+    <!-- Audit Log Table -->
+    <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 overflow-hidden">
+        <div class="overflow-x-auto min-w-full">
+            <table class="w-full text-left text-sm text-slate-700 align-middle">
+                <thead class="bg-slate-50 text-slate-500 uppercase font-bold text-[11px] tracking-wider border-b border-slate-200/80">
+                    <tr>
+                        <th scope="col" class="py-4 px-6 min-w-[160px]">Timestamp</th>
+                        <th scope="col" class="py-4 px-6 min-w-[150px]">User</th>
+                        <th scope="col" class="py-4 px-6 min-w-[220px]">Action Detail</th>
+                        <th scope="col" class="py-4 px-6 min-w-[180px]">Target Institute</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-slate-100 font-medium">
                     {% for log in logs %}
-                    <tr class="hover:bg-gray-50/50 transition-colors">
-                        <td class="p-4 text-gray-500 text-sm whitespace-nowrap">{{ log.timestamp|date:"M j, Y H:i" }}</td>
-                        <td class="p-4 text-gray-900 font-medium">{{ log.user.phone_number }}</td>
-                        <td class="p-4 text-gray-800">{{ log.action }}</td>
-                        <td class="p-4 text-gray-600">
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-4 px-6 font-mono text-xs text-slate-500 whitespace-nowrap">{{ log.timestamp|date:"M j, Y H:i" }}</td>
+                        <td class="py-4 px-6 font-mono text-xs font-bold text-slate-900">{{ log.user.phone_number }}</td>
+                        <td class="py-4 px-6 text-slate-800 text-xs font-medium">{{ log.action }}</td>
+                        <td class="py-4 px-6 text-xs">
                             {% if log.institute %}
-                                <a href="{% url 'platform_admin:institute_detail' log.institute.pk %}" class="hover:underline text-brand-ink">{{ log.institute.name }}</a>
+                                <a href="{% url 'platform_admin:institute_detail' log.institute.pk %}" class="font-bold text-slate-900 hover:text-brand-brass transition-colors">{{ log.institute.name }}</a>
                             {% else %}
-                                -
+                                <span class="text-slate-400">-</span>
                             {% endif %}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="p-8 text-center text-gray-500">No activity logs found.</td>
+                        <td colspan="4" class="py-12 text-center text-slate-500 space-y-2">
+                            <p class="text-sm font-bold text-slate-800">No Activity Logs Recorded</p>
+                            <p class="text-xs text-slate-400">No activity events match your filter criteria.</p>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
         
-        <!-- Pagination -->
+        <!-- Pagination Bar -->
         {% if page_obj.has_other_pages %}
-        <div class="p-4 border-t border-gray-100 flex justify-between items-center bg-gray-50">
-            <span class="text-sm text-gray-500">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-            <div class="flex space-x-2">
+        <div class="p-4 border-t border-slate-200/80 flex items-center justify-between bg-slate-50/80 text-xs font-medium">
+            <span class="text-slate-500">Page <strong class="text-slate-900 font-mono">{{ page_obj.number }}</strong> of <strong class="text-slate-900 font-mono">{{ page_obj.paginator.num_pages }}</strong></span>
+            <div class="flex items-center space-x-2">
                 {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.institute %}&institute={{ request.GET.institute }}{% endif %}" class="px-3 py-1 border border-gray-200 rounded text-gray-600 hover:bg-gray-100">Prev</a>
+                    <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.institute %}&institute={{ request.GET.institute }}{% endif %}" class="px-3.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors shadow-2xs">Previous</a>
                 {% endif %}
                 {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.institute %}&institute={{ request.GET.institute }}{% endif %}" class="px-3 py-1 border border-gray-200 rounded text-gray-600 hover:bg-gray-100">Next</a>
+                    <a href="?page={{ page_obj.next_page_number }}{% if request.GET.institute %}&institute={{ request.GET.institute }}{% endif %}" class="px-3.5 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-700 hover:bg-slate-100 transition-colors shadow-2xs">Next Page</a>
                 {% endif %}
             </div>
         </div>

@@ -1,26 +1,33 @@
 {% extends 'base.html' %}
 {% block title %}Record Payment | Trakvo{% endblock %}
 {% block content %}
-<div class="p-4 md:p-8">
-    <div class="max-w-xl bg-white rounded-xl shadow-sm border border-gray-200 p-4 md:p-8">
-        <h2 class="text-2xl font-semibold font-serif text-brand-ink mb-2">Record Payment</h2>
-        <p class="text-gray-500 mb-6">Student: <strong>{{ fee_structure.student.full_name }}</strong> | Balance Due: <strong>₹{{ fee_structure.balance_due }}</strong></p>
-        
+<div class="p-4 sm:p-6 lg:p-8 max-w-2xl mx-auto space-y-6">
+    <!-- Header Title -->
+    <div>
+        <h2 class="text-2xl sm:text-3xl font-bold font-serif text-slate-900 tracking-tight">Record Fee Payment</h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Student: <strong class="text-slate-900 font-serif">{{ fee_structure.student.full_name }}</strong> | Balance Due: <strong class="font-mono text-brand-rust">₹{{ fee_structure.balance_due }}</strong></p>
+    </div>
+
+    <!-- Payment Form Card -->
+    <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 p-6 sm:p-8">
         <form method="post" class="space-y-6">
             {% csrf_token %}
             {% for field in form %}
-            <div>
-                <label for="{{ field.id_for_label }}" class="block text-sm font-medium font-sans text-brand-ink mb-1">
+            <div class="space-y-1.5">
+                <label for="{{ field.id_for_label }}" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
                     {{ field.label }}
                 </label>
-                {{ field }}
+                <div class="relative">
+                    {{ field }}
+                </div>
                 {% if field.errors %}
-                <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
+                <p class="text-brand-rust text-xs font-medium mt-1">{{ field.errors.0 }}</p>
                 {% endif %}
             </div>
             {% endfor %}
+
             {% url 'fees:fee_list' as cancel_url %}
-            {% include 'core/_form_actions.html' with submit_text='Record Payment' cancel_url=cancel_url %}
+            {% include 'core/_form_actions.html' with submit_text='Confirm & Save Payment' cancel_url=cancel_url %}
         </form>
     </div>
 </div>

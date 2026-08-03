@@ -2,83 +2,135 @@
 {% block title %}Dashboard | Trakvo Platform Admin{% endblock %}
 
 {% block content %}
-<div class="p-4 md:p-8 max-w-7xl mx-auto">
-    <div class="mb-8">
-        <h2 class="text-3xl font-semibold font-serif text-brand-ink">Platform Overview</h2>
-        <p class="text-gray-500">Welcome to the Trakvo super admin panel.</p>
+<div class="p-4 sm:p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
+    <!-- Header Banner -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-2xl sm:text-3xl font-bold font-serif text-slate-900 tracking-tight">Platform Overview</h2>
+            <p class="text-slate-500 text-xs sm:text-sm mt-0.5">High-level metrics across all registered coaching institutes.</p>
+        </div>
+        <a href="{% url 'platform_admin:institute_create' %}" class="inline-flex items-center px-4 py-2.5 bg-brand-brass hover:bg-amber-600 text-white rounded-xl text-xs font-semibold shadow-xs transition-all transform active:scale-95 self-start sm:self-auto">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Onboard New Institute
+        </a>
     </div>
 
-    <!-- Stats -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 text-center">
-            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Total Institutes</p>
-            <p class="text-4xl font-mono text-brand-ink">{{ total_institutes }}</p>
-        </div>
-        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 text-center">
-            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Active Institutes</p>
-            <p class="text-4xl font-mono text-brand-teal">{{ active_institutes }}</p>
-        </div>
-        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 text-center">
-            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Suspended</p>
-            <p class="text-4xl font-mono text-brand-rust">{{ suspended_institutes }}</p>
-        </div>
-        <div class="bg-white rounded-xl shadow-card border border-brand-hairline p-6 text-center">
-            <p class="text-sm font-medium text-gray-500 uppercase tracking-wider mb-2">Total Students</p>
-            <p class="text-4xl font-mono text-brand-ink">{{ total_students }}</p>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-        <!-- Trials Ending Soon -->
-        <div class="bg-white rounded-xl shadow-card border border-brand-hairline overflow-hidden flex flex-col h-full">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-brand-brass/10">
-                <h3 class="text-lg font-semibold font-serif text-brand-ink">Trials Ending in Next 7 Days</h3>
-                <span class="bg-brand-brass text-white text-xs font-bold px-2 py-1 rounded-full">{{ trials_ending_soon.count }}</span>
+    <!-- 4 Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 p-6 flex flex-col justify-between hover:shadow-md transition-all">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Institutes</p>
+                <div class="h-9 w-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                </div>
             </div>
-            <div class="p-0 flex-1">
-                <ul class="divide-y divide-gray-100">
+            <div class="mt-4">
+                <p class="text-3xl font-bold font-mono text-slate-900 tracking-tight">{{ total_institutes }}</p>
+                <p class="text-xs text-slate-400 mt-1">Registered Organizations</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 p-6 flex flex-col justify-between hover:shadow-md transition-all">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Active Tenants</p>
+                <div class="h-9 w-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+            </div>
+            <div class="mt-4">
+                <p class="text-3xl font-bold font-mono text-emerald-600 tracking-tight">{{ active_institutes }}</p>
+                <p class="text-xs text-slate-400 mt-1">Operational Institutes</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 p-6 flex flex-col justify-between hover:shadow-md transition-all">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Suspended</p>
+                <div class="h-9 w-9 rounded-xl bg-red-50 text-brand-rust flex items-center justify-center border border-red-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+            </div>
+            <div class="mt-4">
+                <p class="text-3xl font-bold font-mono text-brand-rust tracking-tight">{{ suspended_institutes }}</p>
+                <p class="text-xs text-slate-400 mt-1">Access Locked Out</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 p-6 flex flex-col justify-between hover:shadow-md transition-all">
+            <div class="flex items-center justify-between">
+                <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Students</p>
+                <div class="h-9 w-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </div>
+            </div>
+            <div class="mt-4">
+                <p class="text-3xl font-bold font-mono text-slate-900 tracking-tight">{{ total_students }}</p>
+                <p class="text-xs text-slate-400 mt-1">Platform Learners</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2 Column Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Trials Ending Soon -->
+        <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 overflow-hidden flex flex-col h-full">
+            <div class="p-5 sm:p-6 border-b border-slate-200/80 flex items-center justify-between bg-amber-50/50">
+                <div class="space-y-0.5">
+                    <h3 class="text-lg font-bold font-serif text-slate-900">Trials Ending Soon</h3>
+                    <p class="text-xs text-slate-500">Expiring in the next 7 days.</p>
+                </div>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                    {{ trials_ending_soon.count }} Institutes
+                </span>
+            </div>
+            <div class="flex-1 p-0">
+                <ul class="divide-y divide-slate-100">
                     {% for inst in trials_ending_soon %}
-                    <li class="p-4 hover:bg-gray-50 transition-colors flex justify-between items-center">
+                    <li class="p-4 sm:px-6 hover:bg-slate-50 transition-colors flex items-center justify-between">
                         <div>
-                            <p class="font-medium text-gray-900">{{ inst.name }}</p>
-                            <p class="text-sm text-brand-rust font-bold">Ends: {{ inst.trial_ends_on|date:"M j, Y" }}</p>
+                            <p class="font-bold text-slate-900 text-sm">{{ inst.name }}</p>
+                            <p class="text-xs font-mono text-brand-rust font-bold mt-0.5">Ends: {{ inst.trial_ends_on|date:"M j, Y" }}</p>
                         </div>
-                        <a href="{% url 'platform_admin:institute_detail' inst.pk %}" class="text-sm font-medium text-brand-ink hover:underline">Manage &rarr;</a>
+                        <a href="{% url 'platform_admin:institute_detail' inst.pk %}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-semibold bg-brand-ink text-white hover:bg-slate-800 transition-colors shadow-2xs">
+                            Manage &rarr;
+                        </a>
                     </li>
                     {% empty %}
-                    <li class="p-8 text-center text-gray-500">
-                        No trials ending in the next 7 days.
+                    <li class="p-8 text-center text-slate-500 space-y-2">
+                        <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <p class="text-sm font-bold text-slate-800">No Expiring Trials</p>
+                        <p class="text-xs text-slate-400">All trial periods are currently in good standing.</p>
                     </li>
                     {% endfor %}
                 </ul>
             </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="bg-white rounded-xl shadow-card border border-brand-hairline overflow-hidden flex flex-col h-full">
-            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                <h3 class="text-lg font-semibold font-serif text-brand-ink">Recent Activity</h3>
+        <!-- Recent Activity Log Snapshot -->
+        <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 overflow-hidden flex flex-col h-full">
+            <div class="p-5 sm:p-6 border-b border-slate-200/80 flex items-center justify-between bg-slate-50/50">
+                <h3 class="text-lg font-bold font-serif text-slate-900">Recent Activity</h3>
+                <a href="{% url 'platform_admin:activity_list' %}" class="text-xs font-bold text-brand-brass hover:underline">View Full Audit Log &rarr;</a>
             </div>
-            <div class="p-0 flex-1">
-                <ul class="divide-y divide-gray-100">
+            <div class="flex-1 p-0">
+                <ul class="divide-y divide-slate-100">
                     {% for log in recent_activity %}
-                    <li class="p-4 hover:bg-gray-50 transition-colors text-sm">
-                        <p class="text-gray-900 font-medium">{{ log.action }}</p>
-                        <p class="text-gray-500 text-xs mt-1">
+                    <li class="p-4 sm:px-6 hover:bg-slate-50 transition-colors space-y-1">
+                        <p class="text-sm font-bold text-slate-900">{{ log.action }}</p>
+                        <p class="text-xs text-slate-400 font-mono">
                             By {{ log.user.phone_number }} 
-                            {% if log.institute %} | {{ log.institute.name }}{% endif %} 
-                            - {{ log.timestamp|timesince }} ago
+                            {% if log.institute %} | <span class="text-slate-600 font-semibold">{{ log.institute.name }}</span>{% endif %} 
+                            • {{ log.timestamp|timesince }} ago
                         </p>
                     </li>
                     {% empty %}
-                    <li class="p-8 text-center text-gray-500">
-                        No recent activity.
+                    <li class="p-8 text-center text-slate-500">
+                        <p class="text-sm font-medium">No recent activity recorded.</p>
                     </li>
                     {% endfor %}
                 </ul>
-            </div>
-            <div class="p-4 border-t border-brand-hairline bg-gray-50 rounded-b-xl text-center mt-auto">
-                <a href="{% url 'platform_admin:activity_list' %}" class="text-brand-ink hover:underline text-sm font-medium">View Full Log &rarr;</a>
             </div>
         </div>
     </div>

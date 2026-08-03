@@ -9,39 +9,56 @@
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-brand-light text-brand-dark font-sans h-screen flex overflow-hidden">
+<body class="bg-brand-light text-brand-dark font-sans h-screen flex overflow-hidden antialiased selection:bg-brand-brass selection:text-white">
     
     {% if user.is_authenticated and user.role == 'super_admin' %}
     <!-- Mobile Sidebar Backdrop -->
-    <div id="sidebar-backdrop" class="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-brand-ink/60 backdrop-blur-xs z-40 hidden md:hidden transition-opacity" onclick="toggleSidebar()"></div>
 
-    <!-- Sidebar -->
-    <aside id="sidebar" class="w-64 bg-brand-ink text-brand-paper flex flex-col justify-between fixed inset-y-0 left-0 z-50 transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 md:flex shrink-0">
-        <div>
-            <!-- Logo -->
-            <div class="h-16 flex items-center px-6 border-b border-white/10">
-                <span class="text-2xl font-bold font-serif tracking-tight text-brand-paper">Trakvo Admin</span>
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="w-64 bg-brand-ink text-brand-paper flex flex-col justify-between fixed inset-y-0 left-0 z-50 transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 md:flex shrink-0 shadow-xl border-r border-white/5">
+        <div class="flex flex-col h-full justify-between">
+            <div>
+                <!-- Brand Logo Header -->
+                <div class="h-16 flex items-center px-6 border-b border-white/10">
+                    <span class="text-xl font-bold font-serif tracking-tight text-brand-paper">Trakvo <span class="text-brand-brass font-sans text-xs uppercase tracking-wider font-bold border border-brand-brass/40 px-2 py-0.5 rounded-full ml-1">Admin</span></span>
+                </div>
+                
+                <!-- Main Navigation Links -->
+                <nav class="p-4 space-y-1.5">
+                    <a href="{% url 'platform_admin:dashboard' %}" class="flex items-center space-x-3 {% if request.resolver_match.url_name == 'dashboard' %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2.5 bg-white/5 font-semibold{% else %}text-slate-400 hover:text-brand-paper hover:bg-white/5 px-3 py-2.5 rounded-lg transition-colors ml-[3px] font-medium{% endif %}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                        <span>Overview</span>
+                    </a>
+                    <a href="{% url 'platform_admin:institute_list' %}" class="flex items-center space-x-3 {% if 'institute' in request.resolver_match.url_name %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2.5 bg-white/5 font-semibold{% else %}text-slate-400 hover:text-brand-paper hover:bg-white/5 px-3 py-2.5 rounded-lg transition-colors ml-[3px] font-medium{% endif %}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        <span>Institutes</span>
+                    </a>
+                    <a href="{% url 'platform_admin:user_list' %}" class="flex items-center space-x-3 {% if 'user' in request.resolver_match.url_name %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2.5 bg-white/5 font-semibold{% else %}text-slate-400 hover:text-brand-paper hover:bg-white/5 px-3 py-2.5 rounded-lg transition-colors ml-[3px] font-medium{% endif %}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                        <span>Users</span>
+                    </a>
+                    <a href="{% url 'platform_admin:activity_list' %}" class="flex items-center space-x-3 {% if 'activity' in request.resolver_match.url_name %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2.5 bg-white/5 font-semibold{% else %}text-slate-400 hover:text-brand-paper hover:bg-white/5 px-3 py-2.5 rounded-lg transition-colors ml-[3px] font-medium{% endif %}">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        <span>Audit Log</span>
+                    </a>
+                </nav>
             </div>
-            
-            <!-- Navigation -->
-            <nav class="p-4 space-y-1">
-                <a href="{% url 'platform_admin:dashboard' %}" class="flex items-center space-x-3 {% if request.resolver_match.url_name == 'dashboard' %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-300 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                    <span>Dashboard</span>
-                </a>
-                <a href="{% url 'platform_admin:institute_list' %}" class="flex items-center space-x-3 {% if 'institute' in request.resolver_match.url_name %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-300 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                    <span>Institutes</span>
-                </a>
-                <a href="{% url 'platform_admin:user_list' %}" class="flex items-center space-x-3 {% if 'user' in request.resolver_match.url_name %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-300 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    <span>Users</span>
-                </a>
-                <a href="{% url 'platform_admin:activity_list' %}" class="flex items-center space-x-3 {% if 'activity' in request.resolver_match.url_name %}border-l-[3px] border-brand-brass text-brand-brass pl-3 pr-3 py-2 bg-white/5{% else %}text-gray-300 hover:text-brand-paper hover:bg-white/5 px-3 py-2 rounded-lg transition-colors ml-[3px]{% endif %} font-medium">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <span>Activity Log</span>
-                </a>
-            </nav>
+
+            <!-- Footer Badge -->
+            <div class="p-4 border-t border-white/10 bg-black/20">
+                <div class="flex items-center space-x-3">
+                    <div class="h-9 w-9 rounded-full bg-brand-brass/20 text-brand-brass font-serif font-bold text-xs flex items-center justify-center border border-brand-brass/30 shrink-0">
+                        SA
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <p class="text-xs font-semibold text-white truncate">Super Admin</p>
+                        <span class="inline-block px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                            Full Control
+                        </span>
+                    </div>
+                </div>
+            </div>
         </div>
     </aside>
     {% endif %}
@@ -49,49 +66,59 @@
     <!-- Main Content Wrapper -->
     <div class="flex-1 flex flex-col h-screen overflow-hidden">
         {% if user.is_authenticated %}
-        <!-- Topbar -->
-        <header class="h-16 bg-brand-ink text-white border-b border-brand-hairline flex items-center justify-between px-6 shrink-0 z-30 shadow">
-            <!-- Left: Platform Info -->
-            <div class="flex items-center">
-                <button onclick="toggleSidebar()" class="md:hidden text-white hover:text-gray-300 focus:outline-none p-2 mr-3 -ml-2 rounded-lg hover:bg-white/10">
+        <!-- Topbar Header -->
+        <header class="h-16 bg-brand-ink text-white border-b border-white/10 flex items-center justify-between px-6 shrink-0 z-30 shadow-md">
+            <!-- Left Info -->
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleSidebar()" class="md:hidden text-slate-300 hover:text-white focus:outline-none p-2 -ml-2 rounded-lg hover:bg-white/10 transition-colors">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </button>
                 <div class="flex items-center space-x-3">
-                    <h1 class="text-xl font-semibold font-serif text-brand-brass">Platform Administration</h1>
+                    <h1 class="text-lg font-bold font-serif text-white tracking-tight">Platform Administration Console</h1>
                 </div>
             </div>
             
+            <!-- Account Menu Dropdown -->
             <div class="flex items-center space-x-4 relative">
-                <button onclick="toggleAccountMenu()" class="flex items-center space-x-2 focus:outline-none hover:opacity-80 transition-opacity">
-                    <span class="hidden md:inline-block text-sm font-medium text-gray-300">Super Admin</span>
-                    <div class="h-8 w-8 rounded-full border border-gray-600 bg-brand-ink flex items-center justify-center text-gray-300 font-bold text-sm">
+                <button onclick="toggleAccountMenu()" class="flex items-center space-x-3 focus:outline-none hover:opacity-85 transition-opacity">
+                    <span class="hidden md:inline-block text-xs font-semibold text-slate-300">Super Admin</span>
+                    <div class="h-9 w-9 rounded-full border border-white/20 bg-brand-brass text-white flex items-center justify-center font-bold text-xs font-serif shadow-2xs">
                         SA
                     </div>
-                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
 
                 <!-- Dropdown Menu -->
-                <div id="account-menu" class="hidden absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-card border border-gray-100 py-1 z-50 text-brand-dark">
-                    <div class="px-4 py-2 border-b border-gray-100 md:hidden">
-                        <p class="text-sm font-medium text-gray-900 truncate">Super Admin</p>
+                <div id="account-menu" class="hidden absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-200/80 py-1.5 z-50 text-slate-900">
+                    <div class="px-4 py-2 border-b border-slate-100 md:hidden">
+                        <p class="text-sm font-bold text-slate-900 truncate">Super Admin</p>
                     </div>
-                    <a href="{% url 'accounts:change_password' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">Change Password</a>
+                    <a href="{% url 'accounts:change_password' %}" class="flex items-center space-x-2 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors">
+                        <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 0121 8.25z"></path></svg>
+                        <span>Change Password</span>
+                    </a>
                     <form method="post" action="{% url 'accounts:logout' %}" class="w-full">
                         {% csrf_token %}
-                        <button type="submit" class="w-full text-left px-4 py-2 text-sm text-brand-rust hover:bg-red-50 transition-colors">Log out</button>
+                        <button type="submit" class="w-full text-left flex items-center space-x-2 px-4 py-2.5 text-sm font-semibold text-brand-rust hover:bg-red-50 transition-colors">
+                            <svg class="w-4 h-4 text-brand-rust shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25"></path></svg>
+                            <span>Log out</span>
+                        </button>
                     </form>
                 </div>
             </div>
         </header>
         {% endif %}
 
-        <!-- Scrollable Main Content -->
-        <main class="flex-1 overflow-y-auto bg-gray-50">
+        <!-- Scrollable Body Content -->
+        <main class="flex-1 overflow-y-auto bg-[#F8FAFC]">
             {% if messages %}
-            <div class="p-4 mx-auto max-w-7xl">
+            <div class="p-4 max-w-7xl mx-auto space-y-3">
                 {% for message in messages %}
-                <div class="mb-4 rounded-lg p-4 {% if message.tags == 'error' %}bg-brand-rust/10 text-brand-rust border border-brand-rust/20{% else %}bg-brand-teal/10 text-brand-teal border border-brand-teal/20{% endif %}">
-                    {{ message }}
+                <div class="rounded-xl p-4 flex items-center justify-between shadow-2xs border text-sm font-medium transition-all {% if message.tags == 'error' %}bg-red-50 text-brand-rust border-red-200{% else %}bg-emerald-50 text-emerald-800 border-emerald-200{% endif %}">
+                    <span>{{ message }}</span>
+                    <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 p-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
                 </div>
                 {% endfor %}
             </div>
@@ -115,11 +142,10 @@
             menu.classList.toggle('hidden');
         }
         
-        // Close menu when clicking outside
         document.addEventListener('click', function(event) {
             const menu = document.getElementById('account-menu');
-            const button = menu.previousElementSibling;
-            if (menu && !menu.classList.contains('hidden') && !menu.contains(event.target) && !button.contains(event.target)) {
+            const button = menu ? menu.previousElementSibling : null;
+            if (menu && !menu.classList.contains('hidden') && !menu.contains(event.target) && button && !button.contains(event.target)) {
                 menu.classList.add('hidden');
             }
         });

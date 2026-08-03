@@ -1,29 +1,45 @@
 {% extends 'base.html' %}
 {% block title %}Institute Profile | Trakvo{% endblock %}
 {% block content %}
-<div class="p-8">
-    <div class="max-w-2xl bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-        <h2 class="text-2xl font-semibold font-serif text-brand-ink mb-6">Institute Profile</h2>
+<div class="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto space-y-6">
+    <!-- Header Title -->
+    <div>
+        <h2 class="text-2xl sm:text-3xl font-bold font-serif text-slate-900 tracking-tight">Institute Profile</h2>
+        <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Manage your institute identity, logo, address, and contact details.</p>
+    </div>
+
+    <!-- Main Profile Form Card -->
+    <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 p-6 sm:p-8">
         <form method="post" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
             {% if form.instance.logo %}
-            <div class="mb-4">
-                <p class="text-sm font-medium text-gray-700 mb-2">Current Logo:</p>
-                <img src="{{ form.instance.logo.url }}" alt="Logo" class="h-20 w-20 object-contain border border-gray-200 rounded">
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center space-x-4">
+                <div class="h-16 w-16 rounded-xl bg-white border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-2xs">
+                    <img src="{{ form.instance.logo.url }}" alt="Logo" class="max-h-full max-w-full object-contain">
+                </div>
+                <div>
+                    <p class="text-xs font-bold uppercase text-slate-500 tracking-wider">Current Logo</p>
+                    <p class="text-xs text-slate-400 mt-0.5">Appears on receipts, header, and public student scoreboard.</p>
+                </div>
             </div>
             {% endif %}
             
-            {% for field in form %}
-            <div>
-                <label for="{{ field.id_for_label }}" class="block text-sm font-medium font-sans text-brand-ink mb-1">
-                    {{ field.label }}
-                </label>
-                {{ field }}
-                {% if field.errors %}
-                <p class="text-red-500 text-sm mt-1">{{ field.errors.0 }}</p>
-                {% endif %}
+            <div class="space-y-5">
+                {% for field in form %}
+                <div class="space-y-1.5">
+                    <label for="{{ field.id_for_label }}" class="block text-xs font-bold text-slate-600 uppercase tracking-wider">
+                        {{ field.label }}
+                    </label>
+                    <div class="relative">
+                        {{ field }}
+                    </div>
+                    {% if field.errors %}
+                    <p class="text-brand-rust text-xs font-medium mt-1">{{ field.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+
             <div class="pt-4">
                 {% url 'accounts:owner_dashboard' as cancel_url %}
                 {% include 'core/_form_actions.html' with submit_text='Save Changes' cancel_url=cancel_url %}

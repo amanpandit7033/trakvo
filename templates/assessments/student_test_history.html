@@ -1,55 +1,67 @@
 {% extends 'base.html' %}
 {% block title %}{{ student.full_name }} Test History | Trakvo{% endblock %}
 {% block content %}
-<div class="p-8">
-    <div class="flex items-center space-x-4 mb-6 border-b border-gray-100 pb-4">
-        <a href="{% url 'students:student_detail' student.id %}" class="text-gray-400 hover:text-gray-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+<div class="p-4 sm:p-6 lg:p-8 max-w-4xl mx-auto space-y-6">
+    <!-- Header Banner -->
+    <div class="flex items-center space-x-4 pb-4 border-b border-slate-200/80">
+        <a href="{% url 'students:student_detail' student.id %}" class="p-2 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-slate-900 transition-colors shadow-2xs">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         </a>
         <div>
-            <h2 class="text-2xl font-semibold text-gray-900">{{ student.full_name }}'s Test History</h2>
-            <p class="text-gray-500 text-sm">Batch: {{ student.batch.name }}</p>
+            <h2 class="text-2xl sm:text-3xl font-bold font-serif text-slate-900 tracking-tight">{{ student.full_name }}'s Assessment Record</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Batch: <strong class="text-slate-800 font-serif">{{ student.batch.name }}</strong></p>
         </div>
     </div>
 
-    <!-- Ranked List -->
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden max-w-4xl">
-        <table class="w-full text-left border-collapse">
-            <thead>
-                <tr class="bg-gray-50 text-gray-500 text-sm font-medium border-b border-gray-200">
-                    <th class="p-4 w-24 text-center">Rank</th>
-                    <th class="p-4">Test Name</th>
-                    <th class="p-4">Date</th>
-                    <th class="p-4 text-right">Marks Obtained</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-                {% for item in history %}
-                <tr class="hover:bg-gray-50 transition-colors">
-                    <td class="p-4 text-center font-bold {% if item.rank == 1 %}text-yellow-600{% elif item.rank == 2 %}text-gray-400{% elif item.rank == 3 %}text-amber-700{% else %}text-gray-500{% endif %}">
-                        {% if item.rank %}#{{ item.rank }}{% else %}-{% endif %}
-                    </td>
-                    <td class="p-4">
-                        <a href="{% url 'assessments:test_results' item.test.id %}" class="font-medium text-brand-blue hover:text-blue-800">
-                            {{ item.test.name }}
-                        </a>
-                    </td>
-                    <td class="p-4 text-gray-600">
-                        {{ item.test.test_date|date:"M j, Y" }}
-                    </td>
-                    <td class="p-4 text-right font-semibold text-gray-900">
-                        {{ item.marks }} / {{ item.test.max_marks }}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="4" class="p-8 text-center text-gray-500">
-                        No test history available.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- History Table Container -->
+    <div class="bg-white rounded-2xl shadow-card border border-slate-200/80 overflow-hidden">
+        <div class="overflow-x-auto min-w-full">
+            <table class="w-full text-left text-sm text-slate-700 align-middle">
+                <thead class="bg-slate-50 text-slate-500 uppercase font-bold text-[11px] tracking-wider border-b border-slate-200/80">
+                    <tr>
+                        <th scope="col" class="py-4 px-6 text-center w-20">Rank</th>
+                        <th scope="col" class="py-4 px-6 min-w-[180px]">Test Name</th>
+                        <th scope="col" class="py-4 px-6 min-w-[130px]">Exam Date</th>
+                        <th scope="col" class="py-4 px-6 text-right min-w-[140px]">Marks Obtained</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium">
+                    {% for item in history %}
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="py-4 px-6 text-center">
+                            {% if item.rank == 1 %}
+                                <span class="h-8 w-8 rounded-full bg-amber-100 text-amber-800 font-bold font-mono text-xs inline-flex items-center justify-center border border-amber-300">🥇 1</span>
+                            {% elif item.rank == 2 %}
+                                <span class="h-8 w-8 rounded-full bg-slate-100 text-slate-700 font-bold font-mono text-xs inline-flex items-center justify-center border border-slate-300">🥈 2</span>
+                            {% elif item.rank == 3 %}
+                                <span class="h-8 w-8 rounded-full bg-amber-700/10 text-amber-900 font-bold font-mono text-xs inline-flex items-center justify-center border border-amber-700/30">🥉 3</span>
+                            {% else %}
+                                <span class="font-bold font-mono text-slate-400">{% if item.rank %}#{{ item.rank }}{% else %}-{% endif %}</span>
+                            {% endif %}
+                        </td>
+                        <td class="py-4 px-6 font-bold text-slate-900">
+                            <a href="{% url 'assessments:test_results' item.test.id %}" class="hover:text-brand-brass transition-colors">
+                                {{ item.test.name }}
+                            </a>
+                        </td>
+                        <td class="py-4 px-6 font-mono text-xs text-slate-500">
+                            {{ item.test.test_date|date:"M j, Y" }}
+                        </td>
+                        <td class="py-4 px-6 text-right font-mono font-bold text-slate-900">
+                            {{ item.marks }} <span class="text-slate-400 font-normal">/ {{ item.test.max_marks }}</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="py-12 text-center text-slate-500 space-y-2">
+                            <p class="text-sm font-bold text-slate-800">No Test History Recorded</p>
+                            <p class="text-xs text-slate-400">This student has not participated in any recorded assessments yet.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}

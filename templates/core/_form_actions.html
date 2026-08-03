@@ -1,19 +1,19 @@
 {% if full_width %}
-<div class="pt-4 flex flex-col space-y-3 border-t border-brand-hairline">
-    <button type="submit" class="w-full bg-brand-brass hover:brightness-95 text-brand-ink font-medium py-2 px-6 rounded-md transition-all shadow-sm">
-        {{ submit_text|default:"Save" }}
+<div class="pt-6 flex flex-col space-y-3 border-t border-slate-200/80">
+    <button type="submit" class="w-full bg-brand-brass hover:bg-amber-600 text-white font-semibold py-3 px-6 rounded-xl transition-all shadow-sm transform active:scale-[0.99] flex items-center justify-center space-x-2">
+        <span>{{ submit_text|default:"Save Changes" }}</span>
     </button>
     {% if cancel_url %}
-    <a href="{{ cancel_url }}" class="w-full text-center text-gray-500 hover:text-brand-ink font-medium transition-colors">Cancel</a>
+    <a href="{{ cancel_url }}" class="w-full text-center text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 font-medium py-2.5 px-6 rounded-xl transition-colors">Cancel</a>
     {% endif %}
 </div>
 {% else %}
-<div class="pt-4 flex items-center space-x-4 border-t border-brand-hairline">
-    <button type="submit" class="bg-brand-brass hover:brightness-95 text-brand-ink font-medium py-2 px-6 rounded-md transition-all shadow-sm">
-        {{ submit_text|default:"Save" }}
+<div class="pt-6 flex items-center space-x-4 border-t border-slate-200/80">
+    <button type="submit" class="bg-brand-brass hover:bg-amber-600 text-white font-semibold py-2.5 px-6 rounded-xl transition-all shadow-sm transform active:scale-[0.99] flex items-center space-x-2">
+        <span>{{ submit_text|default:"Save Changes" }}</span>
     </button>
     {% if cancel_url %}
-    <a href="{{ cancel_url }}" class="text-gray-500 hover:text-brand-ink font-medium transition-colors">Cancel</a>
+    <a href="{{ cancel_url }}" class="text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 font-medium py-2.5 px-6 rounded-xl transition-colors">Cancel</a>
     {% endif %}
 </div>
 {% endif %}
